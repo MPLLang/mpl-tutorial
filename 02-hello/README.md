@@ -16,7 +16,7 @@ Note that in SML, it is common to call a function without putting parentheses
 around its arguments (e.g. `f x` instead of `f(x)`).
 
 <details>
-<summary><strong>Question</strong>: what does <code>val _ =</code> mean?</summary>
+<summary><strong>Question</strong>: What does <code>val _ =</code> mean?</summary>
 <blockquote>
 Normally, we use the syntax <code>val ... = ...</code> to introduce a new
 variable. For example, <code>val x = 2+2</code> lets us use <code>x</code> to
@@ -49,16 +49,16 @@ hello world
 
 ## Compiling multiple files as one program
 
-Typically, we don't write programs as just a single `.sml` file. Instead,
-we write multiple separate files and then put them together to make a program.
-To do so with MPL, we need to write an additional file that describes how to put
-the files together. This additional file is called an
+**`.mlb` Files**. Typically, we don't write programs as just a single `.sml`
+file. Instead, we write multiple separate files and then compile them together
+as one program. To do this with MPL, we need to write an additional file that
+describes how to put the files together. This additional file is called an
 [ML Basis File](http://mlton.org/MLBasis), and has the extension `.mlb`.
 
-For example, there is a second file [`hello-again.sml`](./hello-again.sml)
-in this directory that prints another message to the terminal.
-The following `.mlb` tells MPL to first run
-[hello.sml](./hello.sml) and then
+For example, take a look at the following `.mlb` file, which tells
+MPL to load three things: the
+[SML basis library](https://smlfamily.github.io/Basis/index.html), and two
+files [hello.sml](./hello.sml) followed by
 [hello-again.sml](./hello-again.sml).
 
 [hello-twice.mlb](./hello-twice.mlb):
@@ -69,20 +69,22 @@ hello-again.sml
 ```
 
 <details>
-<summary><strong>Question</strong>: what the heck does <code>$(SML_LIB)/basis/basis.mlb</code> mean?</summary>
+<summary><strong>Question</strong>: What is this <code>$(SML_LIB)/basis/basis.mlb</code> thing? Why do we need to load the SML basis library? </summary>
 <blockquote>
-This line tells MPL to include the
-<a href="https://smlfamily.github.io/Basis/index.html">SML Basis Library</a>,
-which defines important functions such as <code>print</code>.
+<code>$(SML_LIB)</code> is a
+<a href="http://www.mlton.org/MLBasisPathMap">path map</a> that points to
+where the SML basis library lives on your machine.
 <br><br>
-When we compile a <code>.sml</code> file, MPL implicitly includes the basis
-library. But when we use a <code>.mlb</code>, we have to be more explicit.
-(This way, our <code>.mlb</code> file
-describes <strong>everything</strong> about our program. No hidden pieces!)
+The SML basis library defines important functions such as <code>print</code>.
+When we compile a <code>.sml</code> file by itself, MPL implicitly includes the
+basis library. But when we use a <code>.mlb</code>, we have to be more explicit.
+This way, our <code>.mlb</code> file
+describes <strong>everything</strong> about our program. No hidden pieces!
 </blockquote>
 </details>
 
-We can pass the `.mlb` directly to MPL, similar to before.
+We can pass the `.mlb` directly to MPL to produce an executable, similar to
+before.
 
 ```console
 $ mpl hello-twice.mlb
