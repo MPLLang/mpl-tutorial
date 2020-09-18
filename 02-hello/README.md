@@ -7,7 +7,7 @@
 Our first program is a one-liner: the function `print` takes a string as
 argument and writes it to the terminal.
 
-[`hello.sml`](./hello.sml):
+[hello.sml](./hello.sml):
 ```sml
 val _ = print "hello world\n"
 ```
@@ -56,10 +56,12 @@ the files together. This additional file is called an
 [ML Basis File](http://mlton.org/MLBasis), and has the extension `.mlb`.
 
 For example, there is a second file [`hello-again.sml`](./hello-again.sml)
-in this directory that prints `"hello again!"`. The following `.mlb` tells
-MPL to first run `hello.sml`, and then `hello-again.sml`.
+in this directory that prints another message to the terminal.
+The following `.mlb` tells MPL to first run
+[hello.sml](./hello.sml) and then
+[hello-again.sml](./hello-again.sml).
 
-[`hello-twice.mlb`](./hello-twice.mlb):
+[hello-twice.mlb](./hello-twice.mlb):
 ```sml
 $(SML_LIB)/basis/basis.mlb
 hello.sml
@@ -67,16 +69,16 @@ hello-again.sml
 ```
 
 <details>
-<summary><strong>Question</strong>: what the heck is <code>$(SML_LIB)/basis/basis.mlb</code>?</summary>
+<summary><strong>Question</strong>: what the heck does <code>$(SML_LIB)/basis/basis.mlb</code> mean?</summary>
 <blockquote>
-This also includes the
+This line tells MPL to include the
 <a href="https://smlfamily.github.io/Basis/index.html">SML Basis Library</a>,
 which defines important functions such as <code>print</code>.
-When we compile a `.sml` file by itself, MPL implicitly also includes
-the basis library. This is just for convenience. When we give MPL a `.mlb`
-file, we have to be more explicit about all the code that is being loaded.
-(And this is quite nice, because it means that the `.mlb` file describes
-<strong>everything</strong> about the program. No hidden pieces!)
+<br><br>
+When we compile a <code>.sml</code> file, MPL implicitly includes the basis
+library. But when we use a <code>.mlb</code>, we have to be more explicit.
+(This way, our <code>.mlb</code> file
+describes <strong>everything</strong> about our program. No hidden pieces!)
 </blockquote>
 </details>
 
