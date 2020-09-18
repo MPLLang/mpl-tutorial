@@ -8,7 +8,10 @@ extensions for parallelism.
 
 This tutorial provides an introduction to using MPL. You don't need to
 already know SML, but you should be comfortable with using the command-line
-shell. All source code is contained in this repo. Some of the examples use
+shell and know some basic programming (integers, booleans, conditionals,
+variables, functions, recursion, etc.).
+
+All source code is contained in this repo. Some of the examples use
 primitives from a shared library [lib/](lib/).
 
 ## Table of Contents

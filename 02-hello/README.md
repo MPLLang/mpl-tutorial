@@ -1,6 +1,6 @@
 # 2. Hello World
 
-[(← Setup)](../01-setup) [(Fibonacci →)](../03-fibonacci)
+[(← Setup)](../01-setup) [(Parallel Fibonacci →)](../03-fibonacci)
 
 ## Write it
 
