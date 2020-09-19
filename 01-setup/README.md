@@ -1,5 +1,7 @@
 # 1: Setup
 
+[(Hello World →)](../02-hello/README.md)
+
 The compiler consists of a single command-line tool called `mpl`.
 
 TODO:

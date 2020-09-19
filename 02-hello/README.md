@@ -1,19 +1,18 @@
 # 2. Hello World
 
-[(← Setup)](../01-setup) [(Parallel Fibonacci →)](../03-fibonacci)
+[(← Setup)](../01-setup/README.md) [(Parallel Fibonacci →)](../03-fibonacci/README.md)
 
 ## Write it
 
 Our first program is a one-liner: the function `print` takes a string as
 argument and writes it to the terminal.
+Note that in SML, it is common to call a function without putting parentheses
+around its arguments (e.g. `f x` instead of `f(x)`).
 
 [hello.sml](./hello.sml):
 ```sml
 val _ = print "hello world\n"
 ```
-
-Note that in SML, it is common to call a function without putting parentheses
-around its arguments (e.g. `f x` instead of `f(x)`).
 
 <details>
 <summary><strong>Question</strong>: What does <code>val _ =</code> mean?</summary>
@@ -29,19 +28,16 @@ don't introduce a new variable to refer to the result".
 
 ## Compile and run it
 
-To the compile this file, pass it to `mpl` at the command-line. This produces
-an executable called `hello`.
+To compile this file, pass it to `mpl` at the command-line. This produces
+an executable called `hello`. By default, `mpl` names the executable the same
+as the source file. We can tell it to use a different name with the
+`-output` flag.
 
 ```console
 $ mpl hello.sml
 $ ./hello
 hello world
-```
 
-By default, `mpl` names the executable the same as the source file. We can
-tell it to use a different name with the `-output` flag:
-
-```console
 $ mpl -output foobar hello.sml
 $ ./foobar
 hello world
@@ -55,10 +51,10 @@ as one program. To do this with MPL, we need to write an additional file that
 describes how to put the files together. This additional file is called an
 [ML Basis File](http://mlton.org/MLBasis), and has the extension `.mlb`.
 
-For example, take a look at the following `.mlb` file, which tells
+For example, take a look at [hello-twice.mlb](./hello-twice.mlb), which tells
 MPL to load three things: the
 [SML basis library](https://smlfamily.github.io/Basis/index.html), and two
-files [hello.sml](./hello.sml) followed by
+files: [hello.sml](./hello.sml) followed by
 [hello-again.sml](./hello-again.sml).
 
 [hello-twice.mlb](./hello-twice.mlb):
@@ -83,7 +79,7 @@ describes <strong>everything</strong> about our program. No hidden pieces!
 </blockquote>
 </details>
 
-We can pass the `.mlb` directly to MPL to produce an executable, similar to
+We can pass an `.mlb` file directly to MPL to produce an executable, similar to
 before.
 
 ```console
