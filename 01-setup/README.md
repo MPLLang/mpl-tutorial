@@ -45,7 +45,25 @@ result [2, 3, 5, 7, 11, 13, 17, ..., 99999989]
 
 ```
 
+We can see that on two cores, the `primes` benchmark took approximately 1.0 seconds compared to 1.8 on a single core.
 
+There are quite a few examples in `examples/bin` directory, play with these.  They can all be called in a similar way to `primes`, e.g.,
+```
+<mpl prompt> # ./bin/msort @mpl procs 1 --
+./bin/msort @mpl procs 1 --
+generating 100000000 random integers
+sorting
+finished in 27.9411s
+result [0, 0, 0, 1, 1, 2, 4, ..., 99999999]
+
+
+<mpl prompt> # ./bin/msort @mpl procs 2 --
+./bin/msort @mpl procs 2 --
+generating 100000000 random integers
+sorting
+finished in 15.1132s
+result [0, 0, 0, 1, 1, 2, 4, ..., 99999999]
+```
 
 
 TODO:
