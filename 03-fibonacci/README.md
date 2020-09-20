@@ -92,14 +92,42 @@ There are three things in this code we haven't seen before:
 </blockquote>
 </details>
 
-Here's some more code which runs our `badParFib` and then prints out the
-result. The function `Int.toString` converts the resulting number into a
-string, and the operator `^` concatenates strings.
+**Code to run `badParFib`**. Below is code which runs `badParFib` (on input
+35) and then prints out the result. The function `Int.toString` converts the
+resulting number into a string, and the operator `^` concatenates strings.
 
 [bad-par-fib-main.sml](./bad-par-fib-main.sml):
 ```sml
 val result = badParFib 35
 val _ = print (Int.toString result ^ "\n")
 ```
+
+**Compile and run it**. Below is an appropriate `.mlb` file.
+The line `$(SML_LIB)/basis/fork-join.mlb` makes it possible to use
+`ForkJoin.par`.
+
+[bad-par-fib.mlb](./bad-par-fib.mlb):
+```sml
+$(SML_LIB)/basis/basis.mlb
+$(SML_LIB)/basis/fork-join.mlb
+bad-par-fib.sml
+bad-par-fib-main.sml
+```
+
+We can now compile and run the code. To use more than one processor,
+the syntax is `./program @mpl procs N --`.
+
+```console
+$ mpl bad-par-fib.mlb
+$ ./bad-par-fib
+9227465
+$ ./bad-par-fib @mpl procs 2 --  # use 2 processors... it gets about 2x faster!
+9227465
+```
+
+## Making it fast
+
+The `badParFib` function has a problem: on one processor, it's much slower than
+the simple sequential `fib` program.
 
 TODO... continue from here...
