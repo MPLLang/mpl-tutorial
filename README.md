@@ -16,8 +16,8 @@ primitives from a shared library [lib/](lib/).
 
 ## Get started
 
-We recommend that you use [Docker](https://www.docker.com/) to run this
-tutorial.
+We recommend that you clone this repository and then run the tutorial
+in a [Docker container](https://www.docker.com/) using the top-level Dockerfile:
 
 ```console
 $ git clone https://github.com/MPLLang/mpl-tutorial.git
@@ -26,14 +26,16 @@ $ docker build . -t mpl-tutorial
 $ docker run -it mpl-tutorial /bin/bash
 ```
 
-This starts a container with the following directory structure. Note that
-in the container, the compiler (`mpl`) has already been installed.
+This opens a bash shell in the container. The directory structure inside the
+container is:
 
 ```
 ~
 ├── mpl            # the MPLLang/mpl repository
 └── mpl-tutorial   # this repository
 ```
+
+More detailed instructions are [here](01-setup/README.md).
 
 ## Table of Contents
 
