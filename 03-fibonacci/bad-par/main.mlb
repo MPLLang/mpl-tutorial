@@ -1,4 +1,4 @@
 $(SML_LIB)/basis/basis.mlb
 $(SML_LIB)/basis/fork-join.mlb
 bad-par-fib.sml
-bad-par-fib-main.sml
+main.sml

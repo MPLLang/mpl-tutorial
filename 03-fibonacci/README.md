@@ -20,7 +20,7 @@ The following defines a function `fib` which takes a number `n` as input
 and returns the n<sup>th</sup>
 [Fibonacci number](https://en.wikipedia.org/wiki/Fibonacci_number).
 
-[`mpl-tutorial/03-fibonacci/fib.sml`](./fib.sml):
+[`mpl-tutorial/03-fibonacci/sequential/fib.sml`](./sequential/fib.sml):
 ```sml
 fun fib n =
   if n = 0 then
@@ -62,7 +62,7 @@ we will discuss below. Notice that we make two recursive
 calls, just like before, but now these are packaged up as anonymous functions
 and passed as argument to `par`.
 
-[`mpl-tutorial/03-fibonacci/bad-par-fib.sml`](./bad-par-fib.sml):
+[`mpl-tutorial/03-fibonacci/bad-par/bad-par-fib.sml`](./bad-par/bad-par-fib.sml):
 ```sml
 fun badParFib n =
   if n = 0 then
@@ -111,7 +111,7 @@ There are three things in this code we haven't seen before:
 `Int.toString` converts the resulting number into a string, and the operator
 `^` concatenates strings.
 
-[`mpl-tutorial/03-fibonacci/bad-par-fib-main.sml`](./bad-par-fib-main.sml):
+[`mpl-tutorial/03-fibonacci/bad-par/main.sml`](./bad-par/main.sml):
 ```sml
 val result = badParFib 35
 val _ = print (Int.toString result ^ "\n")
@@ -121,37 +121,97 @@ val _ = print (Int.toString result ^ "\n")
 The line `$(SML_LIB)/basis/fork-join.mlb` makes it possible to use
 `ForkJoin.par`.
 
-[`mpl-tutorial/03-fibonacci/bad-par-fib.mlb`](./bad-par-fib.mlb):
+[`mpl-tutorial/03-fibonacci/bad-par/main.mlb`](./bad-par/main.mlb):
 ```sml
 $(SML_LIB)/basis/basis.mlb
 $(SML_LIB)/basis/fork-join.mlb
 bad-par-fib.sml
-bad-par-fib-main.sml
+main.sml
 ```
 
 We can now compile and run the code. To use more than one processor,
 the syntax is `./program @mpl procs N --`.
 
 ```
-[mpl-tutorial/03-fibonacci]$ mpl bad-par-fib.mlb
-[mpl-tutorial/03-fibonacci]$ time ./bad-par-fib
+[mpl-tutorial/03-fibonacci]$ mpl bad-par/main.mlb
+
+[mpl-tutorial/03-fibonacci]$ time bad-par/main
 9227465
 
-real  0m2.432s
-user  0m1.843s
-sys   0m0.586s
+real	0m2.432s
+user	0m1.843s
+sys	0m0.586s
 
-[mpl-tutorial/03-fibonacci]$ time ./bad-par-fib @mpl procs 2 --
+[mpl-tutorial/03-fibonacci]$ time bad-par/main @mpl procs 2 --
 9227465
 
-real  0m1.337s     # about 2x faster on 2 processors!
-user  0m1.902s
-sys   0m0.579s
+real	0m1.337s     # about 2x faster on 2 processors!
+user	0m1.902s
+sys	0m0.579s
 ```
 
 ## Making it fast
 
-The `badParFib` function has a problem: on one processor, it's much slower than
-the simple sequential `fib` program.
+The `badParFib` function has a problem: on one processor, it's about 10x
+slower than the simple sequential `fib` program:
 
-TODO... continue from here...
+```
+[mpl-tutorial/03-fibonacci]$ mpl sequential/main.mlb
+[mpl-tutorial/03-fibonacci]$ time sequential/main
+9227465
+
+real	0m0.216s
+user	0m0.213s
+sys	0m0.001s
+[mpl-tutorial/03-fibonacci]$ mpl bad-par/main.mlb
+[mpl-tutorial/03-fibonacci]$ time bad-par/main
+9227465
+
+real	0m2.432s     # 10x slower than the sequential code!
+user	0m1.843s
+sys	0m0.586s
+```
+
+This is due to a lack of [granularity control](gran). Roughly speaking, the
+cost of `ForkJoin.par` is actually fairly significant, so we need to amortize
+this overhead.
+
+A simple way of doing so is to switch to a fast sequential
+algorithm below some constant threshold:
+
+[`mpl-tutorial/03-fibonacci/fast-par/fast-par-fib.sml`](./fast-par/fast-par-fib.sml):
+```sml
+fun fastParFib n =
+  if n < 20 then
+    fib n    (* do the sequential code instead *)
+  else
+    let
+      val (a, b) =
+        ForkJoin.par (fn () => fastParFib (n-1),
+                      fn () => fastParFib (n-2))
+    in
+      a + b
+    end
+```
+
+This is now just as fast as the sequential code on one processor, but is
+still parallel.
+
+```
+[mpl-tutorial/03-fibonacci]$ mpl fast-par/main.mlb
+[mpl-tutorial/03-fibonacci]$ time fast-par/main
+9227465
+
+real	0m0.211s      # almost exactly the same as sequential fib!
+user	0m0.209s
+sys	0m0.001s
+
+[mpl-tutorial/03-fibonacci]$ time fast-par/main @mpl procs 2 --
+9227465
+
+real	0m0.110s      # still gets 2x faster on 2 processors!
+user	0m0.215s
+sys	0m0.001s
+```
+
+[gran]: https://en.wikipedia.org/wiki/Granularity_(parallel_computing)

@@ -6,7 +6,8 @@ fun badParFib n =
   else
     let
       val (a, b) =
-        ForkJoin.par (fn () => badParFib (n-1), fn () => badParFib (n-2))
+        ForkJoin.par (fn () => badParFib (n-1),
+                      fn () => badParFib (n-2))
     in
       a + b
     end
