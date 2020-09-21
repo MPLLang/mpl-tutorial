@@ -2,62 +2,72 @@
 
 [(Hello World →)](../02-hello/README.md)
 
-The compiler consists of a single command-line tool called `mpl`.
+We recommend that you use [Docker](https://www.docker.com/) to run this
+tutorial. Instructions are below. If you're on Linux, you can also install
+`mpl` locally; these instructions are in the top-level README.md of
+the [mpl repository](https://github.com/MPLLang/mpl).
 
-You can try out the compiler using the docker.
+## MPL Docker Image and Examples
 
-1) Clone the mpl repository
-2) Run in terminal
-```
-$ docker pull shwestrick/mpl
-```
-
-This will pull the docker image for mpl
-
-3)Now start shell on your terminal
-```
-$ docker run -it shwestrick/mpl /bin/bash
-```
-
-You will see a bash shell prompt.  There are pre-compiled binaries in the Docker container.  Trying to run some of these is a good point to start.
+Begin by pulling the docker image for `mpl` and running it with a shell.
 
 ```
-<mpl prompt> #  cd examples
-<mpl prompt> #  ./bin/primes @mpl procs 4 --
+$ docker pull shwestrick/mpl                # download the image
+$ docker run -it shwestrick/mpl /bin/bash   # start shell in a container
 ```
 
-The above command will run the `primes` benchmark with 4 cores (processors).  Depending on the number of cores your computer has, you might reduce this number.  For example, you could start with 1 and increase.
+You are now in the container, with a shell prompt at the root of
+the [mpl repository](https://github.com/MPLLang/mpl). Inside the container,
+the `mpl` has already been installed. There are also pre-compiled
+binaries in the `examples/bin` subdirectory. Let's try to run one of these.
 
-Here is how things look on my two core laptop
+**Primes example**. In the container, we can run `primes` with 4
+processors.
 
 ```
-<mpl prompt> # ./bin/primes @mpl procs 1 --
+<mpl prompt># examples/bin/primes @mpl procs 4 --
 generating primes up to 100000000
-finished in 1.8301s
+finished in 0.6058s
 number of primes 5761455
 result [2, 3, 5, 7, 11, 13, 17, ..., 99999989]
-<mpl prompt> # ./bin/primes @mpl procs 2 --
-./bin/primes @mpl procs 2 --
+```
+
+Depending on the number of cores you computer has, you might want to decrease
+this number. The syntax is `<program> @mpl procs <num processors> --`. For
+example, we can run on 1 or 2 processors, shown below.
+
+```
+<mpl prompt># examples/bin/primes @mpl procs 1 --
 generating primes up to 100000000
-finished in 1.0952s
+finished in 2.1835s
 number of primes 5761455
 result [2, 3, 5, 7, 11, 13, 17, ..., 99999989]
 
+<mpl prompt># examples/bin/primes @mpl procs 2 --
+generating primes up to 100000000
+finished in 1.1390s
+number of primes 5761455
+result [2, 3, 5, 7, 11, 13, 17, ..., 99999989]
 ```
 
-We can see that on two cores, the `primes` benchmark took approximately 1.0 seconds compared to 1.8 on a single core.
+We can see that with 2 processors, the `primes` benchmark takes about 1
+second to run. This is about twice as fast as using one processor, which
+took about 2 seconds.
 
-There are quite a few examples in `examples/bin` directory, play with these.  They can all be called in a similar way to `primes`, e.g.,
+**Other examples**. There are quite a few examples in `examples/bin` directory.
+They can all be called in a similar way to `primes`. See
+`examples/README.md` for details.
+
+Here is running mergesort on 1 and 2 processors:
 ```
-<mpl prompt> # ./bin/msort @mpl procs 1 --
+<mpl prompt># examples/bin/msort @mpl procs 1 --
 ./bin/msort @mpl procs 1 --
 generating 100000000 random integers
 sorting
 finished in 27.9411s
 result [0, 0, 0, 1, 1, 2, 4, ..., 99999999]
 
-
-<mpl prompt> # ./bin/msort @mpl procs 2 --
+<mpl prompt># examples/bin/msort @mpl procs 2 --
 ./bin/msort @mpl procs 2 --
 generating 100000000 random integers
 sorting
@@ -65,15 +75,22 @@ finished in 15.1132s
 result [0, 0, 0, 1, 1, 2, 4, ..., 99999999]
 ```
 
+## Running this tutorial in Docker
 
-TODO:
-  - Do we install locally or use Docker?
-    - For people on mac OS, they'll need to use Docker.
+To run this tutorial, use the [top-level Dockerfile](../Dockerfile) in this
+repository.
 
-  [Umut: let's assume docker for now. this is what most people will use.
-   Later when time permits, it can be extended.
-  ]
- 
-  - Provide both sets of instructions?
-    - If using Docker... how? Do we provide a top-level docker-file for this
-    repo?
+```console
+$ git clone https://github.com/MPLLang/mpl-tutorial.git
+$ cd mpl-tutorial
+$ docker build . -t mpl-tutorial
+$ docker run -it mpl-tutorial /bin/bash
+```
+
+This starts a container with the following directory structure.
+
+```
+~
+├── mpl            # the MPLLang/mpl repository
+└── mpl-tutorial   # this repository
+```
