@@ -2,23 +2,9 @@
 
 [(← Setup)](../01-setup/README.md) [(Parallel Fibonacci →)](../03-fibonacci/README.md)
 
-
-## Preliminaries
-
-1) Pull the `mpl` docker image. 
-2) Clone the tutorial repository 
-3) Start the containter and mount the tutorial directory at `mnt/mpl-tutorial` 
-
-To do this you can use the following command, subsituting for
-`<local-mpl-tutorial>` directory the path to it, e.g., `/Users/myname/mpl-tutorial`
-```
-docker run -v <local-mpl-tutorial>:/mnt/mpl-tutorial -it shwestrick/mpl /bin/bash
-```
-
-This will give a bash prompt like this
-```
-<mpl prompt> #
-```
+Make sure that you've already done the [setup](../01-setup/README.md). If
+you're using Docker to run the tutorial, all commands below should be
+run within the container.
 
 ## Write it
 
@@ -27,7 +13,7 @@ argument and writes it to the terminal.
 Note that in SML, it is common to call a function without putting parentheses
 around its arguments (e.g. `f x` instead of `f(x)`).
 
-[hello.sml](./hello.sml):
+[`mpl-tutorial/02-hello/hello.sml`](./hello.sml):
 ```sml
 val _ = print "hello world\n"
 ```
@@ -44,11 +30,6 @@ don't introduce a new variable to refer to the result".
 </blockquote>
 </details>
 
-You can find this example in 
-```
-mpl-tutorial/02-hello/hello.sml
-```
-
 ## Compile and run it
 
 To compile this file, pass it to `mpl` at the command-line. This produces
@@ -57,29 +38,12 @@ as the source file. We can tell it to use a different name with the
 `-output` flag.
 
 ```console
-$ mpl hello.sml
-$ ./hello
+~/mpl-tutorial/02-hello$ mpl hello.sml
+~/mpl-tutorial/02-hello$ ./hello
 hello world
 
-$ mpl -output foobar hello.sml
-$ ./foobar
-hello world
-```
-
-Using the docker container you can proceed like his by using the pre-build `mpl` binary
-
-```
-<mpl prompt> # ./build/bin/mpl /mnt/mpl-tutorial/02-hello/hello.sml 
-```
-This will create the following executable
-```
-/mnt/mpl-tutorial/02-hello/hello.sml 
-```
-
-You can now execute this as follows
-```
-<mpl prompt> # /mnt/mpl-tutorial/02-hello/hello
-/mnt/mpl-tutorial/02-hello/hello
+~/mpl-tutorial/02-hello$ mpl -output foobar hello.sml
+~/mpl-tutorial/02-hello$ ./foobar
 hello world
 ```
 
@@ -97,7 +61,7 @@ MPL to load three things: the
 files: [hello.sml](./hello.sml) followed by
 [hello-again.sml](./hello-again.sml).
 
-[hello-twice.mlb](./hello-twice.mlb):
+[`mpl-tutorial/02-hello/hello-twice.mlb`](./hello-twice.mlb):
 ```sml
 $(SML_LIB)/basis/basis.mlb
 hello.sml
@@ -123,8 +87,8 @@ We can pass an `.mlb` file directly to MPL to produce an executable, similar to
 before.
 
 ```console
-$ mpl hello-twice.mlb
-$ ./hello-twice
+~/mpl-tutorial/02-hello$ mpl hello-twice.mlb
+~/mpl-tutorial/02-hello$ ./hello-twice
 hello world
 hello again
 ```
