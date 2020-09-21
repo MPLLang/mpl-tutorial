@@ -2,9 +2,17 @@
 
 [(← Setup)](../01-setup/README.md) [(Parallel Fibonacci →)](../03-fibonacci/README.md)
 
+## Preliminaries
+
 Make sure that you've already done the [setup](../01-setup/README.md). If
 you're using Docker to run the tutorial, all commands below should be
-run within the container.
+run within the container in directory `~/mpl-tutoral/02-hello/`:
+
+```
+$ docker run -it mpl-tutorial /bin/bash
+...# cd mpl-tutorial/02-hello
+...# <enter commands here>
+```
 
 ## Write it
 
@@ -38,12 +46,12 @@ as the source file. We can tell it to use a different name with the
 `-output` flag.
 
 ```
-~/mpl-tutorial/02-hello$ mpl hello.sml
-~/mpl-tutorial/02-hello$ ./hello
+[mpl-tutorial/02-hello]$ mpl hello.sml
+[mpl-tutorial/02-hello]$ ./hello
 hello world
 
-~/mpl-tutorial/02-hello$ mpl -output foobar hello.sml
-~/mpl-tutorial/02-hello$ ./foobar
+[mpl-tutorial/02-hello]$ mpl -output foobar hello.sml
+[mpl-tutorial/02-hello]$ ./foobar
 hello world
 ```
 
@@ -87,8 +95,8 @@ We can pass an `.mlb` file directly to MPL to produce an executable, similar to
 before.
 
 ```
-~/mpl-tutorial/02-hello$ mpl hello-twice.mlb
-~/mpl-tutorial/02-hello$ ./hello-twice
+[mpl-tutorial/02-hello]$ mpl hello-twice.mlb
+[mpl-tutorial/02-hello]$ ./hello-twice
 hello world
 hello again
 ```
