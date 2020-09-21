@@ -19,7 +19,7 @@ primitives from a shared library [lib/](lib/).
 We recommend that you clone this repository and then run the tutorial
 in a [Docker container](https://www.docker.com/) using the top-level Dockerfile:
 
-```console
+```
 $ git clone https://github.com/MPLLang/mpl-tutorial.git
 $ cd mpl-tutorial
 $ docker build . -t mpl-tutorial

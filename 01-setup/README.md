@@ -13,7 +13,7 @@ We recommend that you use Docker.
 Clone this repository and then build and run a
 [Docker](https://www.docker.com/) container using the top-level Dockerfile:
 
-```console
+```
 $ git clone https://github.com/MPLLang/mpl-tutorial.git
 $ cd mpl-tutorial
 $ docker build . -t mpl-tutorial

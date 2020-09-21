@@ -117,7 +117,7 @@ bad-par-fib-main.sml
 We can now compile and run the code. To use more than one processor,
 the syntax is `./program @mpl procs N --`.
 
-```console
+```
 $ mpl bad-par-fib.mlb
 $ ./bad-par-fib
 9227465

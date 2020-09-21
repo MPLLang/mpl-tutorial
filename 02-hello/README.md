@@ -37,7 +37,7 @@ an executable called `hello`. By default, `mpl` names the executable the same
 as the source file. We can tell it to use a different name with the
 `-output` flag.
 
-```console
+```
 ~/mpl-tutorial/02-hello$ mpl hello.sml
 ~/mpl-tutorial/02-hello$ ./hello
 hello world
@@ -86,7 +86,7 @@ describes <strong>everything</strong> about our program. No hidden pieces!
 We can pass an `.mlb` file directly to MPL to produce an executable, similar to
 before.
 
-```console
+```
 ~/mpl-tutorial/02-hello$ mpl hello-twice.mlb
 ~/mpl-tutorial/02-hello$ ./hello-twice
 hello world
