@@ -25,7 +25,6 @@ $ cd mpl-tutorial
 $ docker build . -t mpl-tutorial
 $ docker run -it mpl-tutorial /bin/bash
 ```
-
 This opens a bash shell in the container. The directory structure inside the
 container is:
 
@@ -34,6 +33,13 @@ container is:
 ├── mpl            # the MPLLang/mpl repository
 └── mpl-tutorial   # this repository
 ```
+
+
+If you will be actively writing code in a directory say called <local-dir> and running it from within the docker container, then you want mount your local directory to the container like this
+```
+docker run -v <local-dir>:/mnt/<local-dir> -it mpl-tutorial /bin/bash
+```
+With this command, the directory `/mnt/local-dir` will contain your local directory.
 
 More detailed instructions are [here](01-setup/README.md).
 
