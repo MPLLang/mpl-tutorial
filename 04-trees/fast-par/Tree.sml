@@ -6,7 +6,7 @@ datatype t = Leaf | Node of int * t * t
 val GRAIN = 1000
 
 fun mk_balanced_seq n = 
-  if n <= 2 then
+  if n = 0 then
     Leaf
   else    
     let 
@@ -18,7 +18,6 @@ fun mk_balanced_seq n =
       Node (n, left, right) 
     end
 
-
 fun height_seq t =
   case t of 
     Leaf => 0
@@ -26,6 +25,18 @@ fun height_seq t =
     let val (hl, hr) = (height_seq l, height_seq r) in
       if hl > hr then 1 + hl else 1 + hr
     end 
+
+
+(* Create an un balanced tree of approximately size n *)
+fun mk_unbalanced n = 
+  if n = 0 then
+    Leaf
+  else    
+    let 
+      val left = mk_unbalanced (n - 1) 
+    in
+      Node (n, left, Leaf) 
+    end
 
 fun mk_balanced n = 
   if n <= GRAIN then

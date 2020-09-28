@@ -3,8 +3,11 @@ struct
 
 datatype t = Leaf | Node of t * t
   
+(* Define "size of a tree" as the number of internal nodes *)
+
+(* Create a balanced tree of approximately size n *)
 fun mk_balanced n = 
-  if n <= 2 then
+  if n = 0 then
     Leaf
   else    
     let 
@@ -16,6 +19,16 @@ fun mk_balanced n =
       Node (left, right) 
     end
 
+(* Create an un balanced tree of approximately size n *)
+fun mk_unbalanced n = 
+  if n = 0 then
+    Leaf
+  else    
+    let 
+      val left = mk_unbalanced (n - 1) 
+    in
+      Node (left, Leaf) 
+    end
 
 fun height t =
   case t of 
