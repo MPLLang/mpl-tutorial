@@ -72,7 +72,7 @@ fun map f t =
 (* Reduce tree t with f identity id *)
 fun reduce f id t =
   case t of 
-    Leaf x => id x
+    Leaf x => f (id, x)
   | Node (l, r) =>
     let val (ls, rs) = (reduce f id l, reduce f id r) in
       f (ls, rs)

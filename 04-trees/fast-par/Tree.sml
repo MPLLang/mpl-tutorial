@@ -55,7 +55,7 @@ fun mapSeq f t =
 (* Reduce tree t with f identity id *)
 fun reduceSeq f id t =
   case t of 
-    Leaf x => id x
+    Leaf x => f (id, x)
   | Node (_, l, r) =>
     let val (ls, rs) = (reduceSeq f id l, reduceSeq f id r) in
       f (ls, rs)
@@ -140,7 +140,7 @@ fun map f t =
 (* Reduce tree t with f identity id *)
 fun reduce f id t =
   case t of 
-    Leaf x => id x
+    Leaf x => f (id, x)
   | Node (n, l, r) =>
     if n <= GRAIN then
       reduceSeq f id t
