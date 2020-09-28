@@ -11,29 +11,6 @@ datatype 'a t = Leaf of 'a | Node of int * 'a t * 'a t
 
 val GRAIN = 5000
   
-fun heightSeq t = 
-  case t of 
-    Leaf _ => 0
-  | Node (n, l, r) =>
-    let 
-      val (hl, hr) = (heightSeq l, 
-                      heightSeq r) 
-    in
-      if hl > hr then 1 + hl else 1 + hr
-    end 
-
-fun mapSeq f t =
-  case t of 
-    Leaf x => f x
-  | Node (n, l, r) =>
-      let 
-        val (ll, rr) = (mapSeq f l, 
-                        mapSeq f r) 
-      in
-        Node (n, ll, rr)
-      end 
-
-  
 fun mkBalancedSeq i n = 
   let
     fun mk i n = 
@@ -52,6 +29,39 @@ fun mkBalancedSeq i n =
     mk i n
   end
 
+
+fun heightSeq t = 
+  case t of 
+    Leaf _ => 0
+  | Node (n, l, r) =>
+    let 
+      val (hl, hr) = (heightSeq l, 
+                      heightSeq r) 
+    in
+      if hl > hr then 1 + hl else 1 + hr
+    end 
+
+fun mapSeq f t =
+  case t of 
+    Leaf x => Leaf (f x)
+  | Node (n, l, r) =>
+      let 
+        val (ll, rr) = (mapSeq f l, 
+                        mapSeq f r) 
+      in
+        Node (n, ll, rr)
+      end 
+
+(* Reduce tree t with f identity id *)
+fun reduceSeq f id t =
+  case t of 
+    Leaf x => id x
+  | Node (_, l, r) =>
+    let val (ls, rs) = (reduceSeq f id l, reduceSeq f id r) in
+      f (ls, rs)
+    end 
+
+  
 (* Create a balanced integer tree of the given size n *)
 fun mkBalanced n = 
   let
@@ -116,7 +126,7 @@ fun height t =
 (* Map f over tree t *)
 fun map f t =
   case t of 
-    Leaf x => f x
+    Leaf x => Leaf (f x)
   | Node (n, l, r) =>
     if n < GRAIN then
       mapSeq f t
@@ -125,6 +135,21 @@ fun map f t =
         val (ll, rr) = ForkJoin.par (fn () => map f l, fn () => map f r) 
       in
         Node (n, ll, rr)
+      end 
+
+(* Reduce tree t with f identity id *)
+fun reduce f id t =
+  case t of 
+    Leaf x => id x
+  | Node (n, l, r) =>
+    if n <= GRAIN then
+      reduceSeq f id t
+    else
+      let 
+        val (ls, rs) = ForkJoin.par (fn () => reduceSeq f id l, 
+                                     fn () => reduceSeq f id r) 
+      in
+        f (ls, rs)
       end 
 end
 

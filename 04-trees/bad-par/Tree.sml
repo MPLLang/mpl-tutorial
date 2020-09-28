@@ -67,11 +67,22 @@ fun height t =
 (* Map f over tree t *)
 fun map f t =
   case t of 
-    Leaf x => f x
+    Leaf x => Leaf (f x)
   | Node (l, r) =>
     let 
       val (ll, rr) = ForkJoin.par (fn () => map f l, fn () => map f r) 
     in
       Node (ll, rr)
     end 
+
+(* Reduce tree t with f identity id *)
+fun reduce f id t =
+  case t of 
+    Leaf x => id x
+  | Node (l, r) =>
+    let val (ls, rs) = ForkJoin.par (fn () => reduce f id l, 
+                                     fn () => reduce f id r) in
+      f (ls, rs)
+    end 
+
 end
