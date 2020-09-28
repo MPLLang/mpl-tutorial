@@ -1,0 +1,15 @@
+structure Tree = 
+  datatype t = Leaf | Node of t * t
+  
+  fun mk_balanced n = 
+    if n <= 2 then
+      Leaf
+    else    
+      let 
+        val nn = n - 1 
+        val n2 = Int.div (nn, 2) 
+        val left = mk_balanced n2 
+        val right = mk_balanced (nn - n2 ) 
+      in
+        Node (left, right) 
+      end  
