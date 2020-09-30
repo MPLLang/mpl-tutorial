@@ -61,7 +61,31 @@ fun reduceSeq f id t =
       f (ls, rs)
     end 
 
-  
+fun filterSeq f t = 
+  case t of 
+    Leaf x => 
+      if f x then
+         SOME (Leaf x)
+      else
+         NONE
+  | Node (n, l, r) =>
+      let
+        val (l, r) = (filterSeq f l, filterSeq f r)
+      in
+        case l of 
+          NONE => r
+        | SOME (ll as Leaf x) =>
+            (case r of 
+               NONE => l
+             | SOME (rr as Leaf y) => SOME (Node (1, ll, rr))
+             | SOME (rr as Node(nrr, lrr, rrr)) => SOME (Node (nrr, ll, rr)))
+        | SOME (ll as Node (nll, lll, rll)) =>
+            (case r of
+               NONE => l
+             | SOME (rr as Leaf y) => SOME (Node (nll, ll, rr))
+             | SOME (rr as Node(nrr, lrr, rrr)) => SOME (Node (nrr+nll+1, ll, rr)))
+      end
+
 (* Create a balanced integer tree of the given size n *)
 fun mkBalanced n = 
   let
@@ -108,6 +132,7 @@ fun toString eToString t =
     in
       ls ^ " " ^ rs
     end
+  
 
 fun height t =
   case t of 
@@ -160,46 +185,117 @@ fun filter f t =
       else
          NONE
   | Node (n, l, r) =>
-      let
-        val (l, r) = ForkJoin.par (fn () => filter f l, 
-                                   fn () => filter f r)
-      in
-        case l of 
-          NONE => r
-        | SOME (ll as Leaf x) =>
-            (case r of 
-               NONE => l
-             | SOME (rr as Leaf y) => SOME (Node (1, ll, rr))
-             | SOME (rr as Node(nrr, lrr, rrr)) => SOME (Node (nrr, ll, rr)))
-        | SOME (ll as Node (nll, lll, rll)) =>
-            (case r of
-               NONE => l
-             | SOME (rr as Leaf y) => SOME (Node (nll, ll, rr))
-             | SOME (rr as Node(nrr, lrr, rrr)) => SOME (Node (nrr+nll+1, ll, rr)))
-      end
+      if n <= GRAIN then
+        filterSeq f t
+      else 
+        let
+          val (l, r) = ForkJoin.par (fn () => filter f l, 
+                                     fn () => filter f r)
+        in
+          case l of 
+            NONE => r
+          | SOME (ll as Leaf x) =>
+              (case r of 
+                 NONE => l
+               | SOME (rr as Leaf y) => SOME (Node (1, ll, rr))
+               | SOME (rr as Node(nrr, lrr, rrr)) => SOME (Node (nrr, ll, rr)))
+          | SOME (ll as Node (nll, lll, rll)) =>
+              (case r of
+                 NONE => l
+               | SOME (rr as Leaf y) => SOME (Node (nll, ll, rr))
+               | SOME (rr as Node(nrr, lrr, rrr)) => SOME (Node (nrr+nll+1, ll, rr)))
+        end
 
 datatype 'a stree = SLeaf of 'a | SNode of ('a * 'a stree * 'a stree)
  
 fun scan id f tree = 
   let 
+    fun upSeq tree = 
+      case tree of 
+        Leaf x => (x, SLeaf x)
+      | Node (n, l, r) =>
+          let val ((sl, slt), (sr, srt)) = (upSeq l, upSeq r)
+          in (f (sl, sr), SNode (sl, slt, srt)) end
+
+    fun downSeq sum tree ut = 
+      case tree of 
+        Leaf x => Leaf sum
+      | Node (n, l, r) =>    
+          let val SNode (s, ul, ur) = ut 
+              val (ll, rr) = (downSeq sum l ul, downSeq (f(sum, s)) r ur)    
+          in Node (n, ll, rr) end
+
     fun up tree = 
       case tree of 
         Leaf x => (x, SLeaf x)
       | Node (n, l, r) =>
-          let val ((sl, slt), (sr, srt)) = ForkJoin.par (fn () => up l,
-                                                         fn () => up r)
-          in (f (sl, sr), SNode (sl, slt, srt)) end
+          if n <= GRAIN then
+            upSeq tree
+          else
+            let val ((sl, slt), (sr, srt)) = ForkJoin.par (fn () => up l,
+                                                           fn () => up r)
+            in (f (sl, sr), SNode (sl, slt, srt)) end
 
     fun down sum tree ut = 
       case tree of 
-        Leaf x => Leaf (f (sum, x))
+        Leaf x => Leaf sum
+      | Node (n, l, r) =>    
+          if n<= GRAIN then
+             downSeq sum tree ut
+          else 
+            let val SNode (s, ul, ur) = ut 
+                val (ll, rr) = ForkJoin.par (fn () => down sum l ul,
+                                             fn () => down (f(sum, s)) r ur)
+            in Node (n, ll, rr) end
+            
+    val (sum, stree) = up tree
+  in
+    (down id tree stree, sum)
+  end    
+
+
+(* Inclusive scan *)
+fun iscan id f tree = 
+  let 
+    fun upSeq tree = 
+      case tree of 
+        Leaf x => (x, SLeaf x)
+      | Node (n, l, r) =>
+          let val ((sl, slt), (sr, srt)) = (upSeq l, upSeq r)
+          in (f (sl, sr), SNode (sl, slt, srt)) end
+
+    fun downSeq sum tree ut = 
+      case tree of 
+        Leaf x => Leaf (f(sum, x))
       | Node (n, l, r) =>    
           let val SNode (s, ul, ur) = ut 
-              val (ll, rr) = ForkJoin.par (fn () => down sum l ul,
-                                           fn () => down (f(sum, s)) r ur)
+              val (ll, rr) = (downSeq sum l ul, downSeq (f(sum, s)) r ur)    
           in Node (n, ll, rr) end
+
+    fun up tree = 
+      case tree of 
+        Leaf x => (x, SLeaf x)
+      | Node (n, l, r) =>
+          if n <= GRAIN then
+            upSeq tree
+          else
+            let val ((sl, slt), (sr, srt)) = ForkJoin.par (fn () => up l,
+                                                           fn () => up r)
+            in (f (sl, sr), SNode (sl, slt, srt)) end
+
+    fun down sum tree ut = 
+      case tree of 
+        Leaf x => Leaf (f(sum, x))
+      | Node (n, l, r) =>    
+          if n<= GRAIN then
+             downSeq sum tree ut
+          else 
+            let val SNode (s, ul, ur) = ut 
+                val (ll, rr) = ForkJoin.par (fn () => down sum l ul,
+                                             fn () => down (f(sum, s)) r ur)
+            in Node (n, ll, rr) end
             
-    val (_, stree) = up tree
+    val (sum, stree) = up tree
   in
     down id tree stree
   end    
