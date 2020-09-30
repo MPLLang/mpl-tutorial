@@ -161,8 +161,8 @@ fun filter f t =
          NONE
   | Node (n, l, r) =>
       let
-        val l = filter f l 
-        val r = filter f r
+        val (l, r) = ForkJoin.par (fn () => filter f l, 
+                                   fn () => filter f r)
       in
         case l of 
           NONE => r
@@ -177,6 +177,32 @@ fun filter f t =
              | SOME (rr as Leaf y) => SOME (Node (nll, ll, rr))
              | SOME (rr as Node(nrr, lrr, rrr)) => SOME (Node (nrr+nll+1, ll, rr)))
       end
+
+datatype 'a stree = SLeaf of 'a | SNode of ('a * 'a stree * 'a stree)
+ 
+fun scan id f tree = 
+  let 
+    fun up tree = 
+      case tree of 
+        Leaf x => (x, SLeaf x)
+      | Node (n, l, r) =>
+          let val ((sl, slt), (sr, srt)) = ForkJoin.par (fn () => up l,
+                                                         fn () => up r)
+          in (f (sl, sr), SNode (sl, slt, srt)) end
+
+    fun down sum tree ut = 
+      case tree of 
+        Leaf x => Leaf (f (sum, x))
+      | Node (n, l, r) =>    
+          let val SNode (s, ul, ur) = ut 
+              val (ll, rr) = ForkJoin.par (fn () => down sum l ul,
+                                           fn () => down (f(sum, s)) r ur)
+          in Node (n, ll, rr) end
+            
+    val (_, stree) = up tree
+  in
+    down id tree stree
+  end    
 
 end
 
