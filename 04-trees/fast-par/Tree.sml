@@ -78,7 +78,7 @@ fun filterSeq f t =
             (case r of 
                NONE => l
              | SOME (rr as Leaf y) => SOME (Node (1, ll, rr))
-             | SOME (rr as Node(nrr, lrr, rrr)) => SOME (Node (nrr, ll, rr)))
+             | SOME (rr as Node(nrr, lrr, rrr)) => SOME (Node (nrr+1, ll, rr)))
         | SOME (ll as Node (nll, lll, rll)) =>
             (case r of
                NONE => l
@@ -198,7 +198,7 @@ fun filter f t =
               (case r of 
                  NONE => l
                | SOME (rr as Leaf y) => SOME (Node (1, ll, rr))
-               | SOME (rr as Node(nrr, lrr, rrr)) => SOME (Node (nrr, ll, rr)))
+               | SOME (rr as Node(nrr, lrr, rrr)) => SOME (Node (nrr+1, ll, rr)))
           | SOME (ll as Node (nll, lll, rll)) =>
               (case r of
                  NONE => l

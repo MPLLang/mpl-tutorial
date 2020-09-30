@@ -85,7 +85,6 @@ fun reduce f id t =
       f (ls, rs)
     end 
 
-
 fun filter f t = 
   case t of
     Leaf x => 
@@ -119,28 +118,15 @@ fun iscan id f tree =
         in
           (f (ls, rs), SNode (ls, lst, rst))
         end
-
-    fun leftOf sumtree = 
-      case sumtree of 
-        SLeaf x => raise Error
-      | SNode (s, l, r) => l
-
-    fun rightOf sumtree = 
-      case sumtree of 
-        SLeaf x => raise Error
-      | SNode (s, l, r) => r
-
-    fun sumval sumtree = 
-      case sumtree of 
-        SLeaf x => raise Error
-      | SNode (s, l, r) => s
      
     fun down sum sumtree tree =
       case tree of 
         Leaf x => Leaf (f (sum, x))
       | Node (left, right) => 
-      let val (ls, rs) = ForkJoin.par (fn () => down sum (leftOf sumtree) left, 
-                                       fn () => down (sum + sumval(sumtree)) (rightOf sumtree) right)
+      let 
+         val SNode(s, l, r) = sumtree 
+         val (ls, rs) = ForkJoin.par (fn () => down sum l left, 
+                                      fn () => down (sum + s) r right)
       in
         Node (ls, rs)
       end
