@@ -151,5 +151,32 @@ fun reduce f id t =
       in
         f (ls, rs)
       end 
+
+fun filter f t = 
+  case t of 
+    Leaf x => 
+      if f x then
+         SOME (Leaf x)
+      else
+         NONE
+  | Node (n, l, r) =>
+      let
+        val l = filter f l 
+        val r = filter f r
+      in
+        case l of 
+          NONE => r
+        | SOME (ll as Leaf x) =>
+            (case r of 
+               NONE => l
+             | SOME (rr as Leaf y) => SOME (Node (1, ll, rr))
+             | SOME (rr as Node(nrr, lrr, rrr)) => SOME (Node (nrr, ll, rr)))
+        | SOME (ll as Node (nll, lll, rll)) =>
+            (case r of
+               NONE => l
+             | SOME (rr as Leaf y) => SOME (Node (nll, ll, rr))
+             | SOME (rr as Node(nrr, lrr, rrr)) => SOME (Node (nrr+nll+1, ll, rr)))
+      end
+
 end
 
