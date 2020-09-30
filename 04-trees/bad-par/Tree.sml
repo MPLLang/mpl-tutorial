@@ -85,4 +85,70 @@ fun reduce f id t =
       f (ls, rs)
     end 
 
+
+fun filter f t = 
+  case t of
+    Leaf x => 
+      if f x then
+        SOME (Leaf x)
+      else
+        NONE 
+  | Node (left, right) =>
+      let 
+        val (l, r) = ForkJoin.par (fn () => filter f left,
+                                   fn () => filter f right)
+      in
+        case l of  
+          NONE => r
+        | SOME lt => 
+          case r of 
+            NONE => l
+          | SOME rt => SOME (Node (lt, rt))
+      end
+
+datatype 'a stree = SLeaf of 'a | SNode of ('a * 'a stree * 'a stree)
+exception Error 
+fun iscan id f tree = 
+  let 
+    fun up t = 
+      case t of
+        Leaf x => (x, SLeaf x)
+      | Node (left, right) => 
+        let val ((ls, lst), (rs, rst)) = ForkJoin.par (fn () => up left, 
+                                                       fn () => up right)
+        in
+          (f (ls, rs), SNode (ls, lst, rst))
+        end
+
+    fun leftOf sumtree = 
+      case sumtree of 
+        SLeaf x => raise Error
+      | SNode (s, l, r) => l
+
+    fun rightOf sumtree = 
+      case sumtree of 
+        SLeaf x => raise Error
+      | SNode (s, l, r) => r
+
+    fun sumval sumtree = 
+      case sumtree of 
+        SLeaf x => raise Error
+      | SNode (s, l, r) => s
+     
+    fun down sum sumtree tree =
+      case tree of 
+        Leaf x => Leaf (f (sum, x))
+      | Node (left, right) => 
+      let val (ls, rs) = ForkJoin.par (fn () => down sum (leftOf sumtree) left, 
+                                       fn () => down (sum + sumval(sumtree)) (rightOf sumtree) right)
+      in
+        Node (ls, rs)
+      end
+
+    val (sum, sumtree) = up tree   
+    in 
+      down id sumtree tree
+    end   
+
+        
 end
