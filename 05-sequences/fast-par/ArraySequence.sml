@@ -28,7 +28,7 @@ fun fromList xs = ArraySlice.full (Array.fromList xs)
 fun toList s = List.tabulate (length s, nth s)
 
 fun toString f s =
-    String.concatWith "," (List.map f (toList s))
+    "<" ^ String.concatWith "," (List.map f (toList s)) ^ ">"
 
 (* Return subseq of s[i...i+n-1] *)
 fun subseq s (i, n) = 
@@ -155,7 +155,7 @@ fun scan f id s =
       end
   end
 
-  fun reduce f id s = 
+fun reduce f id s = 
   let
     val n = length s
 
@@ -174,6 +174,23 @@ fun scan f id s =
       in 
         f (sl, sr)
       end
+  end
+
+fun flatten s = 
+  let
+    val lengths = map length s 
+    val (offsets, n) = scan (fn (x,y) => x + y) 0 lengths 
+    val t = alloc n
+    val _ = 
+      parfor (0, length s) (fn i =>
+        let 
+           val (x, offset) = (nth s i, nth offsets i)
+        in
+          parfor (0, length x) (fn j =>
+            A.update (t, offset + j, nth x j))
+        end)
+  in 
+    AS.full t
   end
 
 end
