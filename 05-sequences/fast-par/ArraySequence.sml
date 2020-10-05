@@ -55,7 +55,15 @@ fun tabulate f n =
     AS.full s
   end  
 
-fun map f s = tabulate (fn i => f (nth s i)) (length s)
+fun apply (f: 'a -> unit) (s: 'a t): unit = 
+  parfor (0, length s) (fn i => f (nth s i)) 
+
+fun applyi (f: int * 'a -> unit) (s: 'a t): unit = 
+  parfor (0, length s) (fn i => f (i, nth s i)) 
+
+fun map f s = 
+  tabulate (fn i => f (nth s i)) (length s)
+
 
 fun rev s = tabulate (fn i => nth s (length s - i - 1)) (length s)
 
@@ -113,6 +121,36 @@ fun scan f id s =
             total    
       in
         (tabulate expand n, total) 
+      end
+  end
+
+  fun filter f s = 
+  let
+    val n = length s
+    val _ = print ("filter: len(s) = " ^ Int.toString n ^ "\n")
+
+    fun seqfilter s =
+      let 
+        val taken = AS.foldr (fn (current, acc) => if f current then current::acc else acc) [] s 
+       in 
+         AS.full (A.fromList taken)
+       end
+  in
+    if n <= GRAIN then
+      seqfilter s
+    else
+      let 
+        val indicators = map (fn x => if f x then 1 else 0) s
+        val (offsets, m) = scan (fn (x,y) => x + y) 0 indicators
+        val t = alloc m 
+        fun copy t (x, i) = 
+          if nth indicators i = 1 then
+            A.update (t, nth offsets i, x)
+          else
+            ()
+        val () = applyi (copy t) s
+      in 
+        AS.full t
       end
   end
 end
