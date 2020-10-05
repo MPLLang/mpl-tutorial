@@ -6,7 +6,7 @@ structure AS = ArraySlice
 
 type 'a t = 'a ArraySlice.slice
 
-val GRAIN = 1
+val GRAIN = 10000
 
 val parfor = ForkJoin.parfor GRAIN
 val alloc = ForkJoin.alloc
@@ -30,7 +30,10 @@ fun toList s = List.tabulate (length s, nth s)
 fun toString f s =
     String.concatWith "," (List.map f (toList s))
 
-fun subseq s (i, n) = AS.subslice (s, i, SOME n)
+(* Return subseq of s[i...i+n-1] *)
+fun subseq s (i, n) = 
+  AS.subslice (s, i, SOME n)
+
 fun take s k = subseq s (0, k)
 fun drop s k = subseq s (k, length s - k)
 
@@ -74,7 +77,7 @@ fun append (s, t) =
 fun scan f id s = 
   let
     val n = length s
-    val _ = print ("scan: len(s) = " ^ Int.toString n ^ "\n")
+(*    val _ = print ("scan: len(s) = " ^ Int.toString n ^ "\n") *)
 
     fun seqscan s t i = 
       let 
@@ -100,7 +103,6 @@ fun scan f id s =
       let 
         val m = Int.div (n, 2)
         val N = m * 2
-        val _ = print ("scan: n = " ^ Int.toString n ^ " N = " ^ Int.toString N ^ "\n") 
         val t = tabulate (fn i => f (nth s (2*i), nth s (2*i+1))) m
         val (t, total) = scan f id t
 
@@ -109,7 +111,7 @@ fun scan f id s =
             if Int.mod (i, 2) = 0 then
               nth t (Int.div(i,2))
             else 
-            f (nth t (Int.div(i,2)), nth s (i-1))      
+              f (nth t (Int.div(i,2)), nth s (i-1))      
           else
             (* assert n = N + 1 *)
             total
@@ -127,7 +129,6 @@ fun scan f id s =
   fun filter f s = 
   let
     val n = length s
-    val _ = print ("filter: len(s) = " ^ Int.toString n ^ "\n")
 
     fun seqfilter s =
       let 
@@ -153,4 +154,26 @@ fun scan f id s =
         AS.full t
       end
   end
+
+  fun reduce f id s = 
+  let
+    val n = length s
+
+    fun seqreduce s =
+      AS.foldl (fn (current, acc) => f (acc, current)) id s
+
+  in
+    if n <= GRAIN then
+      seqreduce s
+    else
+      let 
+        val m = Int.div (n, 2)
+        val (left, right) = (subseq s (0, m), subseq s (m, n-m))
+        val (sl, sr) = ForkJoin.par (fn () => reduce f id left, 
+                                     fn () => reduce f id right)
+      in 
+        f (sl, sr)
+      end
+  end
+
 end

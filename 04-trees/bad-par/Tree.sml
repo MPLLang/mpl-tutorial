@@ -136,5 +136,34 @@ fun iscan id f tree =
       down id sumtree tree
     end   
 
+fun scan id f tree = 
+  let 
+    fun up t = 
+      case t of
+        Leaf x => (x, SLeaf x)
+      | Node (left, right) => 
+        let val ((ls, lst), (rs, rst)) = ForkJoin.par (fn () => up left, 
+                                                       fn () => up right)
+        in
+          (f (ls, rs), SNode (ls, lst, rst))
+        end
+     
+    fun down sum sumtree tree =
+      case tree of 
+        Leaf x => sum
+      | Node (left, right) => 
+      let 
+         val SNode(s, l, r) = sumtree 
+         val (ls, rs) = ForkJoin.par (fn () => down sum l left, 
+                                      fn () => down (sum + s) r right)
+      in
+        Node (ls, rs)
+      end
+
+    val (sum, sumtree) = up tree   
+    in 
+      down id sumtree tree
+    end   
+
         
 end
