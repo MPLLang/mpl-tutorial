@@ -171,7 +171,7 @@ fun filter f s =
     else
       let 
         val indicators = map (fn x => if f x then 1 else 0) s
-        val (offsets, m) = scanDirect (fn (x,y) => x + y) 0 indicators
+        val (offsets, m) = scan (fn (x,y) => x + y) 0 indicators
         val t = alloc m 
         fun copy t (x, i) = 
           if nth indicators i = 1 then
