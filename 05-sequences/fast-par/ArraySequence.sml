@@ -67,94 +67,6 @@ fun applyi (f: int * 'a -> unit) (s: 'a t): unit =
 fun map f s = 
   tabulate (fn i => f (nth s i)) (length s)
 
-
-fun rev s = tabulate (fn i => nth s (length s - i - 1)) (length s)
-
-fun append (s, t) =
-  tabulate (fn i => if i < length s then nth s i else nth t (i - length s))
-      (length s + length t)
-
-fun scan f id s = 
-  let
-    val n = length s
-(*    val _ = print ("scan: len(s) = " ^ Int.toString n ^ "\n") *)
-
-    fun seqscan s t i = 
-      let 
-        val prev =         
-          if i = 0 then 
-            id
-          else
-            seqscan s t (i-1)
-
-        val () = AS.update (t, i, prev)
-      in
-        f (prev, nth s i)
-      end
-  in
-    if n <= GRAIN then
-      let
-        val t = AS.full (alloc n)
-        val r = seqscan s t (n-1)
-      in
-        (t, r)
-      end                        
-    else
-      let 
-        val m = Int.div (n, 2)
-        val N = m * 2
-        val t = tabulate (fn i => f (nth s (2*i), nth s (2*i+1))) m
-        val (t, total) = scan f id t
-
-        fun expand i =
-          if i < N then
-            if Int.mod (i, 2) = 0 then
-              nth t (Int.div(i,2))
-            else 
-              f (nth t (Int.div(i,2)), nth s (i-1))      
-          else
-            (* assert n = N + 1 *)
-            total
-
-        val total = 
-          if n > N then
-            f(total, nth s (n-1))
-          else
-            total    
-      in
-        (tabulate expand n, total) 
-      end
-  end
-
-  fun filter f s = 
-  let
-    val n = length s
-
-    fun seqfilter s =
-      let 
-        val taken = AS.foldr (fn (current, acc) => if f current then current::acc else acc) [] s 
-       in 
-         AS.full (A.fromList taken)
-       end
-  in
-    if n <= GRAIN then
-      seqfilter s
-    else
-      let 
-        val indicators = map (fn x => if f x then 1 else 0) s
-        val (offsets, m) = scan (fn (x,y) => x + y) 0 indicators
-        val t = alloc m 
-        fun copy t (x, i) = 
-          if nth indicators i = 1 then
-            A.update (t, nth offsets i, x)
-          else
-            ()
-        val () = applyi (copy t) s
-      in 
-        AS.full t
-      end
-  end
-
 fun reduce f id s = 
   let
     val n = length s
@@ -175,6 +87,103 @@ fun reduce f id s =
         f (sl, sr)
       end
   end
+
+fun rev s = tabulate (fn i => nth s (length s - i - 1)) (length s)
+
+fun append (s, t) =
+  tabulate (fn i => if i < length s then nth s i else nth t (i - length s))
+      (length s + length t)
+
+fun scanGen f id s = 
+  let
+    val n = length s
+(*    val _ = print ("scan: len(s) = " ^ Int.toString n ^ "\n") *)
+
+    fun seqscan s t i = 
+      let 
+        val prev =         
+          if i = 0 then 
+            id
+          else
+            seqscan s t (i-1)
+
+        val () = AS.update (t, i, prev)
+      in
+        f (prev, nth s i)
+      end
+  in
+    if n <= GRAIN then
+      let
+        val t = AS.full (alloc (n+1))
+        val r = seqscan s t (n-1)
+        val _ = AS.update (t, n, r)
+      in
+        t
+      end                        
+    else
+      let 
+        val m = Int.div (n, 2)
+        val N = m * 2
+        val t = tabulate (fn i => f (nth s (2*i), nth s (2*i+1))) m
+        val t = scanGen f id t
+
+        fun expand i =
+          if Int.mod (i, 2) = 0 then
+            nth t (Int.div(i,2))
+          else 
+            f (nth t (Int.div(i,2)), nth s (i-1))      
+      in
+        tabulate expand (n+1)
+      end
+  end
+
+
+fun scan f id s = 
+  let 
+    val t = scanGen f id s
+    val n = length s 
+  in
+    (subseq t (0,n), nth t n)
+  end 
+
+fun iscan f id s = 
+  let 
+    val t = scanGen f id s
+    val n = length s 
+  in
+    subseq t (1,n)
+  end 
+
+
+fun filter f s = 
+  let
+    val n = length s
+
+    fun seqfilter s =
+      let 
+        val taken = AS.foldr (fn (current, acc) => if f current then current::acc else acc) [] s 
+       in 
+         AS.full (A.fromList taken)
+       end
+  in
+    if n <= GRAIN then
+      seqfilter s
+    else
+      let 
+        val indicators = map (fn x => if f x then 1 else 0) s
+        val (offsets, m) = scanDirect (fn (x,y) => x + y) 0 indicators
+        val t = alloc m 
+        fun copy t (x, i) = 
+          if nth indicators i = 1 then
+            A.update (t, nth offsets i, x)
+          else
+            ()
+        val () = applyi (copy t) s
+      in 
+        AS.full t
+      end
+  end
+
 
 fun flatten s = 
   let
