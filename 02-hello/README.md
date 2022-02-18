@@ -9,7 +9,7 @@ you're using Docker to run the tutorial, all commands below should be
 run within the container in directory `~/mpl-tutoral/02-hello/`:
 
 ```
-$ docker run -it mpl-tutorial /bin/bash
+$ docker run --rm -v $(pwd -P):/root/mpl-tutorial -it mpl-tutorial /bin/bash
 ...# cd mpl-tutorial/02-hello
 ...# <enter commands here>
 ```
@@ -30,11 +30,11 @@ val _ = print "hello world\n"
 <summary><strong>Question</strong>: What does <code>val _ =</code> mean?</summary>
 <blockquote>
 Normally, we use the syntax <code>val ... = ...</code> to introduce a new
-variable. For example, <code>val x = 2+2</code> lets us use <code>x</code> to
-refer to the value 4.
+variable. For example, <code>val x = 2+2</code>.
+
 But in this case, <code>print</code> doesn't return anything interesting, so we
 just write <code>val _ = print ...</code> which means "print the thing, but
-don't introduce a new variable to refer to the result".
+don't introduce a new variable for the result".
 </blockquote>
 </details>
 
@@ -46,12 +46,15 @@ as the source file. We can tell it to use a different name with the
 `-output` flag.
 
 ```
-[mpl-tutorial/02-hello]$ mpl hello.sml
-[mpl-tutorial/02-hello]$ ./hello
+...# ls
+README.md  hello-again.sml  hello-twice.mlb  hello.sml
+
+...# mpl hello.sml
+...# ./hello
 hello world
 
-[mpl-tutorial/02-hello]$ mpl -output foobar hello.sml
-[mpl-tutorial/02-hello]$ ./foobar
+...# mpl -output foobar hello.sml
+...# ./foobar
 hello world
 ```
 
@@ -76,27 +79,27 @@ hello.sml
 hello-again.sml
 ```
 
-<details>
-<summary><strong>Question</strong>: What is this <code>$(SML_LIB)/basis/basis.mlb</code> thing? Why do we need to load the SML basis library? </summary>
-<blockquote>
-<code>$(SML_LIB)</code> is a
-<a href="http://www.mlton.org/MLBasisPathMap">path map</a> that points to
-where the SML basis library lives on your machine.
-<br><br>
-The SML basis library defines important functions such as <code>print</code>.
-When we compile a <code>.sml</code> file by itself, MPL implicitly includes the
-basis library. But when we use a <code>.mlb</code>, we have to be more explicit.
-This way, our <code>.mlb</code> file
-describes <strong>everything</strong> about our program. No hidden pieces!
-</blockquote>
-</details>
-
 We can pass an `.mlb` file directly to MPL to produce an executable, similar to
 before.
 
 ```
-[mpl-tutorial/02-hello]$ mpl hello-twice.mlb
-[mpl-tutorial/02-hello]$ ./hello-twice
+...# mpl hello-twice.mlb
+...# ./hello-twice
 hello world
 hello again
 ```
+
+<details>
+<summary><strong>Question</strong>: What is this <code>$(SML_LIB)/basis/basis.mlb</code> thing? </summary>
+<blockquote>
+This loads the
+<a href="https://smlfamily.github.io/Basis/">SML basis library</a>, which is
+the standard library included in all SML distributions. It includes the
+definition of important functions such as <code>print</code>.
+<br><br>
+When we compile a <code>.sml</code> file by itself, the basis library is
+implicitly included for convenience. But when we use a <code>.mlb</code>, we
+have to be more explicit. This way, our <code>.mlb</code> file
+describes <strong>everything</strong> about our program. No hidden pieces!
+</blockquote>
+</details>

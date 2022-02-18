@@ -17,10 +17,11 @@ Clone this repository and then build and run a
 $ git clone https://github.com/MPLLang/mpl-tutorial.git
 $ cd mpl-tutorial
 $ docker build . -t mpl-tutorial
-$ docker run -it mpl-tutorial /bin/bash
+$ docker run --rm -v $(pwd -P):/root/mpl-tutorial -it mpl-tutorial /bin/bash
 ```
 
-This opens a bash shell in the container. The directory structure inside the
+This opens a bash shell in the container, with a prompt that should look
+something like `root@43a65ec53fc6:~#`. The directory structure inside the
 container is
 
 ```
@@ -40,10 +41,13 @@ MLton [mpl] 20200827.140808-gcce156bf3
 There are also pre-compiled binaries in the `mpl/examples/bin` subdirectory.
 Let's try to run one of these.
 
-**Primes example**. In the container, we can run `primes` with 4
-processors.
+### Primes Example
+In the container, we can run the pre-compiled `primes` example with 4 processors.
 
 ```
+<container># ls
+mpl  mpl-tutorial
+
 <container># mpl/examples/bin/primes @mpl procs 4 --
 generating primes up to 100000000
 finished in 0.6058s
@@ -51,9 +55,12 @@ number of primes 5761455
 result [2, 3, 5, 7, 11, 13, 17, ..., 99999989]
 ```
 
-Depending on the number of cores you computer has, you might want to decrease
-this number. The syntax is `<program> @mpl procs <num processors> --`. For
+Depending on the number of cores you computer has, you might want to use
+fewer processors. The syntax for a MPL executable is
+`<program> @mpl procs <num processors> --`. For
 example, we can run on 1 or 2 processors, shown below.
+We can see that with 2 processors, the `primes` benchmark takes about 1
+second to run. This is about twice as fast as using one processor.
 
 ```
 <container># mpl/examples/bin/primes @mpl procs 1 --
@@ -69,11 +76,8 @@ number of primes 5761455
 result [2, 3, 5, 7, 11, 13, 17, ..., 99999989]
 ```
 
-We can see that with 2 processors, the `primes` benchmark takes about 1
-second to run. This is about twice as fast as using one processor, which
-took about 2 seconds.
-
-**Other examples**. There are quite a few examples in `mpl/examples/bin`
+### Other Examples
+There are a few other examples in `mpl/examples/bin`
 directory. They can all be called in a similar way to `primes`. See
 `mpl/examples/README.md` for details.
 
