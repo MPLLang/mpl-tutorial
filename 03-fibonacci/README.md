@@ -135,16 +135,16 @@ We can now compile and run the code. To use more than one processor,
 the syntax is `./program @mpl procs N --`.
 
 ```
-[mpl-tutorial/03-fibonacci]$ mpl bad-par/main.mlb
+...# mpl bad-par/main.mlb
 
-[mpl-tutorial/03-fibonacci]$ time bad-par/main
+...# time bad-par/main
 9227465
 
 real	0m2.432s
 user	0m1.843s
 sys	0m0.586s
 
-[mpl-tutorial/03-fibonacci]$ time bad-par/main @mpl procs 2 --
+...# time bad-par/main @mpl procs 2 --
 9227465
 
 real	0m1.337s     # about 2x faster on 2 processors!
@@ -158,15 +158,16 @@ The `badParFib` function has a problem: on one processor, it's about 10x
 slower than the simple sequential `fib` program:
 
 ```
-[mpl-tutorial/03-fibonacci]$ mpl sequential/main.mlb
-[mpl-tutorial/03-fibonacci]$ time sequential/main
+...# mpl sequential/main.mlb
+...# time sequential/main
 9227465
 
 real	0m0.216s
 user	0m0.213s
 sys	0m0.001s
-[mpl-tutorial/03-fibonacci]$ mpl bad-par/main.mlb
-[mpl-tutorial/03-fibonacci]$ time bad-par/main
+
+...# mpl bad-par/main.mlb
+...# time bad-par/main
 9227465
 
 real	0m2.432s     # 10x slower than the sequential code!
@@ -200,15 +201,15 @@ This is now just as fast as the sequential code on one processor, but is
 still parallel.
 
 ```
-[mpl-tutorial/03-fibonacci]$ mpl fast-par/main.mlb
-[mpl-tutorial/03-fibonacci]$ time fast-par/main
+...# mpl fast-par/main.mlb
+...# time fast-par/main
 9227465
 
 real	0m0.211s      # almost exactly the same as sequential fib!
 user	0m0.209s
 sys	0m0.001s
 
-[mpl-tutorial/03-fibonacci]$ time fast-par/main @mpl procs 2 --
+...# time fast-par/main @mpl procs 2 --
 9227465
 
 real	0m0.110s      # still gets 2x faster on 2 processors!
