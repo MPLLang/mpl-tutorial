@@ -175,7 +175,7 @@ user	0m1.843s
 sys	0m0.586s
 ```
 
-This is due to a lack of [granularity control](gran). Roughly speaking, the
+This is due to a lack of [granularity control][gran]. Roughly speaking, the
 cost of `ForkJoin.par` is actually fairly significant, so we need to amortize
 this overhead.
 
