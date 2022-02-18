@@ -9,7 +9,8 @@ you're using Docker to run the tutorial, all commands below should be
 run within the container in directory `~/mpl-tutoral/03-fibonacci/`:
 
 ```
-$ docker run -it mpl-tutorial /bin/bash
+$ cd path/to/mpl-tutorial
+$ docker run --rm -v $(pwd -P):/root/mpl-tutorial -it mpl-tutorial /bin/bash
 ...# cd mpl-tutorial/03-fibonacci
 ...# <enter commands here>
 ```
@@ -105,6 +106,7 @@ There are three things in this code we haven't seen before:
 </ol>
 </blockquote>
 </details>
+
 
 **Code to run `badParFib`**. Let's run `badParFib` on input
 35 and then prints out the result. In the code below, the function

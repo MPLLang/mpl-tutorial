@@ -9,6 +9,7 @@ you're using Docker to run the tutorial, all commands below should be
 run within the container in directory `~/mpl-tutoral/02-hello/`:
 
 ```
+$ cd path/to/mpl-tutorial
 $ docker run --rm -v $(pwd -P):/root/mpl-tutorial -it mpl-tutorial /bin/bash
 ...# cd mpl-tutorial/02-hello
 ...# <enter commands here>
