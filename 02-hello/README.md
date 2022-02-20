@@ -1,6 +1,6 @@
 # 2. Hello World
 
-[(← Setup)](../01-setup/README.md) [(Parallel Fibonacci →)](../03-fibonacci/README.md)
+[(← Setup)](../01-setup/README.md) [(Parallelism and Granularity Control →)](../03-how-to-par/README.md)
 
 ## Preliminaries
 
