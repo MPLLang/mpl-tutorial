@@ -10,9 +10,9 @@ run within the container in directory `~/mpl-tutoral/02-hello/`:
 
 ```
 $ cd path/to/mpl-tutorial
-$ docker run --rm -v $(pwd -P):/root/mpl-tutorial -it mpl-tutorial /bin/bash
-...# cd mpl-tutorial/02-hello
-...# <enter commands here>
+$ ./start-container.sh
+<container># cd 02-hello
+<container># <enter commands here>
 ```
 
 ## Write it
@@ -47,15 +47,15 @@ as the source file. We can tell it to use a different name with the
 `-output` flag.
 
 ```
-...# ls
+<container># ls
 README.md  hello-again.sml  hello-twice.mlb  hello.sml
 
-...# mpl hello.sml
-...# ./hello
+<container># mpl hello.sml
+<container># ./hello
 hello world
 
-...# mpl -output foobar hello.sml
-...# ./foobar
+<container># mpl -output foobar hello.sml
+<container># ./foobar
 hello world
 ```
 
@@ -84,8 +84,8 @@ We can pass an `.mlb` file directly to MPL to produce an executable, similar to
 before.
 
 ```
-...# mpl hello-twice.mlb
-...# ./hello-twice
+<container># mpl hello-twice.mlb
+<container># ./hello-twice
 hello world
 hello again
 ```

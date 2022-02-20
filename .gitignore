@@ -1,2 +1,11 @@
 #*
 *~
+
+02-hello/hello
+02-hello/hello-twice
+02-hello/foobar
+
+03-how-to-par/bad-par/main
+03-how-to-par/fast-par/main
+03-how-to-par/sequential/main
+03-how-to-par/tuning/main

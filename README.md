@@ -22,14 +22,14 @@ in a [Docker container](https://www.docker.com/) using the top-level Dockerfile:
 ```
 $ git clone https://github.com/MPLLang/mpl-tutorial.git
 $ cd mpl-tutorial
-$ docker build . -t mpl-tutorial
-$ docker run --rm -v $(pwd -P):/root/mpl-tutorial -it mpl-tutorial /bin/bash
+$ ./start-container.sh
 ```
 This opens a bash shell in the container. The directory structure inside the
-container is:
+container is as follows. Starting the container puts us inside the
+`mpl-tutorial` directory.
 
 ```
-~
+root
 ├── mpl            # the MPLLang/mpl repository
 └── mpl-tutorial   # this repository
 ```
@@ -46,8 +46,7 @@ More detailed instructions are [here](01-setup/README.md).
 
 1. [Setup](01-setup/README.md): running with docker and/or installing the compiler
 2. [Hello World](02-hello/README.md): writing, compiling, and running a simple program
-3. [Parallel Fibonacci](03-fibonacci/README.md): simple parallelism with `par`
-4. [Mergesort](04-mergesort/README.md): parallel sequences
+3. [Parallelism and Granularity Control](03-how-to-par/README.md): simple parallelism with `ForkJoin.par`, and work-efficiency via granularity control
 
 [mpl]: https://github.com/MPLLang/mpl
 [sml]: https://en.wikipedia.org/wiki/Standard_ML

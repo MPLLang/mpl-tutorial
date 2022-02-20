@@ -1,2 +1,3 @@
 FROM shwestrick/mpl:latest
-WORKDIR /root
+RUN mkdir /root/mpl-tutorial
+WORKDIR /root/mpl-tutorial
