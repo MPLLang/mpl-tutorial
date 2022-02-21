@@ -1,7 +1,8 @@
+val size = CommandLineArgs.parseInt "size" 1000
+
 fun sumSeq tree = Tree.reduceSeq (fn (a, b) => a+b) 0 tree
 fun sum tree = Tree.reduce (fn (a, b) => a+b) 0 tree
 
-val size = 1000 * 1000  (* 1 million *)
 val tree1 = Tree.makeUnbalanced Int64.fromInt 0 size
 val tree2 = Tree.makeBalanced Int64.fromInt 0 size
 

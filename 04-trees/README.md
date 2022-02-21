@@ -188,7 +188,7 @@ essentially no opportunity for parallelism.
         let
           val half = n div 2
           val l = makeBalanced f i half
-          val r = makeBalanced f i (n - half)
+          val r = makeBalanced f (i + half) (n - half)
         in
           Node (n, l, r)
         end
@@ -206,43 +206,4 @@ TODO...
 Here we'll measure the performance `reduce` by summing trees of different
 structure.
 
-```sml
-fun sumSeq tree = Tree.reduceSeq (fn (a, b) => a+b) 0 tree
-fun sum tree = Tree.reduce (fn (a, b) => a+b) 0 tree
-
-val size = 10 * 1000 * 1000  (* 10 million *)
-val tree1 = Tree.makeUnbalanced 0 size
-val tree2 = Tree.makeBalanced 0 size
-
-(* sequential performance *)
-val (result1, tm1) = Util.getTime (fn () => sumSeq tree1)
-val (result2, tm2) = Util.getTime (fn () => sumSeq tree2)
-
-val _ = print ("==== sequential ====\n")
-val _ = print ("sumSeq(unbalancedTree) = " ^ Int.toString result1 ^ ";  finished in " ^ Time.toString tm1 ^ "s\n")
-val _ = print ("sumSeq(balancedTree) = " ^ Int.toString result2 ^ ";  finished in " ^ Time.toString tm2 ^ "s\n")
-
-(* parallel performance *)
-val (result1, tm1) = Util.getTime (fn () => sum tree1)
-val (result2, tm2) = Util.getTime (fn () => sum tree2)
-
-val _ = print ("==== parallel ====\n")
-val _ = print ("sum(unbalancedTree) = " ^ Int.toString result1 ^ ";  finished in " ^ Time.toString tm1 ^ "s\n")
-val _ = print ("sum(balancedTree) = " ^ Int.toString result2 ^ ";  finished in " ^ Time.toString tm2 ^ "s\n")
-```
-
-## Interface
-
-Here's the interface we're shooting for:
-
-```sml
-val tabulate: (int -> 'a) -> int -> 'a tree
-val map: ('a -> 'b) -> 'a tree -> 'b tree
-val filter: ('a -> bool) -> 'a tree -> 'a tree
-val reduce: ('a * 'a -> 'a) -> 'a -> 'a tree -> 'a
-```
-
-## Sequential First
-
-Before attempting to exploit parallelism, it's important to consider first how
-you might solve a problem without parallelism.
+TODO continue here...

@@ -46,7 +46,7 @@ struct
     | Node (_, left, right) => f (reduceSeq f id left, reduceSeq f id right)
 
 
-  val GRAIN = 5000
+  val GRAIN = 1000
 
   fun reduce f id t =
     if size t < GRAIN then
@@ -86,7 +86,7 @@ struct
         let
           val half = n div 2
           val l = makeBalanced f i half
-          val r = makeBalanced f i (n - half)
+          val r = makeBalanced f (i + half) (n - half)
         in
           Node (n, l, r)
         end
