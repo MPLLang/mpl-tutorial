@@ -30,7 +30,8 @@ trees here are intended to be used as parallel lists.
 The following datatype defines a binary tree type. The integer
 at internal nodes will be used to store the sizes of subtrees, which is
 important both for granularity control as well as various algorithms. We'll
-consider the "size" of a tree to be the number of leaves it has.
+consider the "size" of a tree to be the number of leaves it has; the
+implementation of the `size` function is shown below.
 
 ```sml
 datatype 'a tree =
@@ -78,51 +79,12 @@ containing a <em>single</em> piece of data: a tuple of three components.
 </blockquote>
 </details>
 
-## A Balancing Act
-
-Our trees are very flexible. The datatype above imposes no restrictions on the
-heights of subtrees. However, it would be nice to ensure that trees are
-*balanced*, i.e., that for each `Node`, both children are approximately the same
-height (or approximately the same size). This will make it easy to parallelize
-algorithms on trees.
-
-When building a tree from scratch, it's easy to ensure that the result is
-balanced. For example, consider the following function, `makeBalanced f n`,
-which (in parallel) builds a balanced tree of size `n` with leaf elements
-`f(0)`, `f(1)`, etc. The resulting tree has height approximately `log(n)`.
-
 ```sml
-  fun makeBalanced f n =
-    let
-      (** recursive helper computes the subtree with leaf elements
-        * f(offset), f(offset+1), ..., f(offset+size-1)
-        *)
-      fun subtree offset size =
-        case size of
-          0 => Empty
-        | 1 => Leaf (f offset)
-        | _ =>
-            let
-              (** divide approximately in half, such that
-                * size = leftSize + rightSize *)
-              val leftSize = size div 2
-              val rightSize = size - leftSize
-
-              fun left () = subtree offset leftSize
-              fun right () = subtree (offset+leftSize) rightSize
-
-              val (l, r) =
-                (* granularity control *)
-                if size < GRAIN then
-                  (left (), right ())
-                else
-                  ForkJoin.par (left, right)
-            in
-              Node (size, l, r)
-            end
-    in
-      subtree 0 size
-    end
+fun size t =
+  case t of
+    Empty => 0
+  | Leaf _ => 1
+  | Node (n, _, _) => n
 ```
 
 <details>
@@ -131,6 +93,143 @@ which (in parallel) builds a balanced tree of size `n` with leaf elements
 TODO...
 </blockquote>
 </details>
+
+## Parallel Reduction
+
+Perhaps the simplest parallel algorithm on a tree is `reduce`, which which
+takes an associative function `f: ('a * 'a) -> 'a` as argument and
+computes the "sum" (with respect to `f`) of the leaves of a tree.
+Note that the function additionally takes an argument `id` which is an
+identity element for `f`. (In particular, we assume `f(id, x) = x` for any `x`.)
+This also serves as a convenient return value for inputs that are `Empty`.
+
+The `reduce` function is easy to parallelize, as the two children of every
+internal node can be processed in parallel, and finally their results
+can be combined with `f`.
+
+Similar to the [previous section](../03-how-to-par/README.md),
+we use granularity control to ensure that the cost of `ForkJoin.par` is
+properly amortized. Here, this is implemented by switching to `reduceSeq`
+below a size threshold `GRAIN`. The `reduceSeq` function is just a sequential
+version of the same algorithm; this will also be useful for experiments later,
+to check if our granularity control is working.
+
+```sml
+  fun reduceSeq f id t =
+    case t of
+      Empty => id
+    | Leaf x => x
+    | Node (_, left, right) => f (reduceSeq f id left, reduceSeq f id right)
+
+  val GRAIN = 5000
+
+  fun reduce f id t =
+    if size t < GRAIN then
+      reduceSeq f id t
+    else
+      case t of
+        Empty => id
+      | Leaf x => x
+      | Node (_, left, right) =>
+          let
+            val (resultLeft, resultRight) =
+              ForkJoin.par (fn () => reduce f id left,
+                            fn () => reduce f id right)
+          in
+            f (resultLeft, resultRight)
+          end
+```
+
+<details>
+<summary><strong>Question</strong>: I'm new to SML. How do I read this code?</summary>
+<blockquote>
+TODO...
+</blockquote>
+</details>
+
+## A Balancing Act: Trees To Test With
+
+Consider the following two functions, `makeUnbalanced` and
+`makeBalanced`. Both functions take two integers `i` and `n` as
+argument, and return a tree of size `n` whose leaves (in order) are
+`f(i)`, `f(i+1)`, ..., `f(i+n-1)`. The two functions differ in the
+structure of the tree produced. This will be helpful for testing performance,
+below.
+
+The function `makeUnbalanced` builds a tree that
+leans hard to the right, with final height exactly `n`. In contrast, the
+function `makeBalanced` builds a tree that is almost perfectly balanced, with
+final height approximately `log(n)`.
+
+To help highlight the similarities between these two functions, we have not
+parallelized either one. It's worth mentioning however that, while
+`makeBalanced` could easily be parallelized, the function `makeUnbalanced` has
+essentially no opportunity for parallelism.
+
+```sml
+  fun makeUnbalanced f i n =
+    case n of
+      0 => Empty
+    | 1 => Leaf (f i)
+    | _ =>
+        let
+          val l = Leaf (f i)
+          val r = makeUnbalanced f (i+1) (n-1)
+        in
+          Node (n, l, r)
+        end
+
+
+  fun makeBalanced f i n =
+    case n of
+      0 => Empty
+    | 1 => Leaf (f i)
+    | _ =>
+        let
+          val half = n div 2
+          val l = makeBalanced f i half
+          val r = makeBalanced f i (n - half)
+        in
+          Node (n, l, r)
+        end
+```
+
+<details>
+<summary><strong>Question</strong>: I'm new to SML. How do I read this code?</summary>
+<blockquote>
+TODO...
+</blockquote>
+</details>
+
+## Performance Testing
+
+Here we'll measure the performance `reduce` by summing trees of different
+structure.
+
+```sml
+fun sumSeq tree = Tree.reduceSeq (fn (a, b) => a+b) 0 tree
+fun sum tree = Tree.reduce (fn (a, b) => a+b) 0 tree
+
+val size = 10 * 1000 * 1000  (* 10 million *)
+val tree1 = Tree.makeUnbalanced 0 size
+val tree2 = Tree.makeBalanced 0 size
+
+(* sequential performance *)
+val (result1, tm1) = Util.getTime (fn () => sumSeq tree1)
+val (result2, tm2) = Util.getTime (fn () => sumSeq tree2)
+
+val _ = print ("==== sequential ====\n")
+val _ = print ("sumSeq(unbalancedTree) = " ^ Int.toString result1 ^ ";  finished in " ^ Time.toString tm1 ^ "s\n")
+val _ = print ("sumSeq(balancedTree) = " ^ Int.toString result2 ^ ";  finished in " ^ Time.toString tm2 ^ "s\n")
+
+(* parallel performance *)
+val (result1, tm1) = Util.getTime (fn () => sum tree1)
+val (result2, tm2) = Util.getTime (fn () => sum tree2)
+
+val _ = print ("==== parallel ====\n")
+val _ = print ("sum(unbalancedTree) = " ^ Int.toString result1 ^ ";  finished in " ^ Time.toString tm1 ^ "s\n")
+val _ = print ("sum(balancedTree) = " ^ Int.toString result2 ^ ";  finished in " ^ Time.toString tm2 ^ "s\n")
+```
 
 ## Interface
 

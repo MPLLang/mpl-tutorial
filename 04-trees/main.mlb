@@ -1,0 +1,12 @@
+$(SML_LIB)/basis/basis.mlb
+$(SML_LIB)/basis/fork-join.mlb
+
+local
+  ../lib/sources.mlb
+in
+  structure CommandLineArgs
+  structure Util
+end
+
+Tree.sml
+main.sml
