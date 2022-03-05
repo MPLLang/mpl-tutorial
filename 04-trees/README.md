@@ -65,10 +65,21 @@ There are three possibilities for a thing of type <code>'a tree</code>:
     two subtrees, both of type <code>'a tree</code>. In this tutorial, we will
     be using the integer <code>n</code> to keep track of subtree sizes.</li>
   </ol>
+<br>
+When defining the datatype, we separate the different possibilities with
+the symbol <code>|</code>, pronounced "or". Each possibility
+is identified by a tag (i.e., <code>Empty</code>, <code>Leaf</code>,
+and <code>Node</code>), and then, if desired, the keyword <code>of</code>
+followed by a type. This indicates that the tag carries additional data
+with it. For example,
+<code>Leaf of 'a</code> says the <code>Leaf</code> tag carries a thing of
+type <code>'a</code> along with it, but the <code>Empty</code> tag doesn't have
+have any additional data.
 <br><br>
-For the <code>Node</code> case, note that we use asterisks (<code>*</code>) to
-separate components of the type. This syntax is more generally used for all
-tuples in the language. For example, a function that takes two integers as
+For the <code>Node</code> case, the extra data has multiple components. Note
+the symbol <code>*</code> between each component of the type. This syntax is
+more generally used for all
+<em>tuples</em> in the language. For example, a function that takes two integers as
 argument and returns a string would have type
 <code>(int * int) -> string</code>.
 <br><br>
