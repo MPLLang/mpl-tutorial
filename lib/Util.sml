@@ -1,6 +1,12 @@
 structure Util =
 struct
 
+  fun die msg =
+    ( TextIO.output (TextIO.stdErr, msg ^ "\n")
+    ; TextIO.flushOut TextIO.stdErr
+    ; OS.Process.exit OS.Process.failure
+    )
+
   fun getTime f =
     let
       val t0 = Time.now ()

@@ -10,5 +10,5 @@
 03-how-to-par/sequential/main
 03-how-to-par/tuning/main
 
-04-trees/main
-04-trees/test-reduce
+04-trees/test-balanced/main
+04-trees/test-unbalanced/main

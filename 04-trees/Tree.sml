@@ -46,7 +46,7 @@ struct
     | Node (_, left, right) => f (reduceSeq f id left, reduceSeq f id right)
 
 
-  val GRAIN = 1000
+  val GRAIN = 5000
 
   fun reduce f id t =
     if size t < GRAIN then
