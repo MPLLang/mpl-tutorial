@@ -101,7 +101,20 @@ fun size t =
 <details>
 <summary><strong>Question</strong>: I'm new to SML. How do I read this code?</summary>
 <blockquote>
-TODO...
+The only thing we haven't seen before is <code>case ... of ...</code>, which
+lets you choose what to do based on what a value looks like. Here, we ask
+what <code>t</code> is. If <code>t = Empty</code>, then we do the first
+branch, returning 0. If <code>t = Leaf _</code>, then we do the second
+branch, returning 1. In the third case, when <code>t = Node(n,_,_)</code>,
+we return <code>n</code>, the integer stored at that node (which, recall,
+we intend to use to keep track of how many leaves are under that node).
+<br><br>
+The underscores (<code>_</code>) are used to ignore values that we don't need.
+For example, we don't care what is stored at the leaf when we return 1.
+<br><br>
+In languages like C and Java, you may have seen <code>switch (...) {...}</code>,
+which is similar, but in SML you don't have to worry about putting those
+pesky <code>break</code>s in the correct places...
 </blockquote>
 </details>
 
@@ -110,9 +123,20 @@ TODO...
 Perhaps the simplest parallel algorithm on a tree is `reduce`, which which
 takes an associative function `f: ('a * 'a) -> 'a` as argument and
 computes the "sum" (with respect to `f`) of the leaves of a tree.
-Note that the function additionally takes an argument `id` which is an
-identity element for `f`. (In particular, we assume `f(id, x) = x` for any `x`.)
+`reduce` also takes an argument `id` which is an
+identity element for `f` (i.e. we assume `f(id, x) = f(x, id) = x` for any `x`).
 This also serves as a convenient return value for inputs that are `Empty`.
+
+Some interesting use cases, given `t: int tree`:
+  * `reduce (fn (a,b) => a+b) 0 t` is the sum of `t`.
+  * `reduce (fn (a, b) => a*b) 1 t` is the product of `t`.
+  * `reduce Int.max (valOf Int.minInt) t` is the maximum of `t`.
+  * `reduce (fn (a, b) => if a >= 0 then a else b) ~1 t` gives you the first
+  non-negative value in `t`.
+    - Fun exercise: try proving that this function is associative.
+    - Also, note that the choice of `~1` as the "identity" element is a little
+    bit relaxed. As long as there is at least one non-negative element, it
+    won't affect the answer.
 
 The `reduce` function is easy to parallelize, as the two children of every
 internal node can be processed in parallel, and finally their results
@@ -120,7 +144,7 @@ can be combined with `f`.
 
 Similar to the [previous section](../03-how-to-par/README.md),
 we use granularity control to ensure that the cost of `ForkJoin.par` is
-properly amortized. Here, this is implemented by switching to `reduceSeq`
+amortized. Here, this is implemented by switching to `reduceSeq`
 below a size threshold `GRAIN`. The `reduceSeq` function is just a sequential
 version of the same algorithm; this will also be useful for experiments later,
 to check if our granularity control is working.
@@ -154,7 +178,31 @@ to check if our granularity control is working.
 <details>
 <summary><strong>Question</strong>: I'm new to SML. How do I read this code?</summary>
 <blockquote>
-TODO...
+We haven't seen the syntax <code>fun reduce f id t = ...</code> before. This
+is called <em>currying</em>. It's a trick in functional languages where you can
+pass multiple arguments without using a tuple.
+<br><br>
+The syntax <code>fun reduce f id t = ...</code> is shorthand for
+<code>val reduce = (fn f => (fn id => (fn t => ...)))</code>, i.e.,
+<code>reduce</code> is a function that returns a function which returns a
+function, etc. This might seem crazy, but it can actually be very convenient
+in some cases.
+<br><br>
+For example, we could write
+<code>val sum = reduce (fn (a,b) => a+b) 0</code>. Notice that we left out the
+last argument to <code>reduce</code>, so therefore <code>sum</code> is a
+function which is "waiting to receive the last argument".
+This is equivalent to writing
+<code>fun sum t = reduce (fn (a,b) => a+b) 0 t</code>.
+<br><br>
+You might be wondering: isn't that really inefficient? The short answer is
+no; it's just as efficient as using tuples to pass arguments. The long answer
+gets into some pretty low-level details about how compilers work.
+<br><br>
+To learn more, we recommend reading more about currying online:
+  <ul>
+    <li><a href="https://en.wikipedia.org/wiki/Currying">Wikipedia entry</a></li>
+  </ul>
 </blockquote>
 </details>
 
@@ -204,13 +252,6 @@ essentially no opportunity for parallelism.
           Node (n, l, r)
         end
 ```
-
-<details>
-<summary><strong>Question</strong>: I'm new to SML. How do I read this code?</summary>
-<blockquote>
-TODO...
-</blockquote>
-</details>
 
 ## Performance Testing
 

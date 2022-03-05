@@ -97,7 +97,8 @@ There are three things in this code we haven't seen before:
   <li>
     <code>let ... in ... end</code> lets us introduce new
     variables locally. In the above code, the variables <code>a</code>
-    and <code>b</code> can be used only between the <code>in ... end</code>.
+    and <code>b</code> can be used only until we get to the
+    corresponding <code>end</code>.
   </li>
 
   <li>
