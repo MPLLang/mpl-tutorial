@@ -47,6 +47,8 @@ More detailed instructions are [here](01-setup/README.md).
 1. [Setup](01-setup/README.md): running with docker and/or installing the compiler
 2. [Hello World](02-hello/README.md): writing, compiling, and running a simple program
 3. [Parallelism and Granularity Control](03-how-to-par/README.md): simple parallelism with `ForkJoin.par`, and work-efficiency via granularity control
+4. [Trees](04-trees/README.md): parallel algorithms on binary trees, tree
+balance experiments
 
 [mpl]: https://github.com/MPLLang/mpl
 [sml]: https://en.wikipedia.org/wiki/Standard_ML
