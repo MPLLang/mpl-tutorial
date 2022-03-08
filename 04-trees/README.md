@@ -373,9 +373,62 @@ construct a `Node` from two trees `t1` and `t2`, we instead just call
 
 ## Scan (Parallel Prefix Sums)
 
-The `scan` primitive is one of the most fundamental for parallel computing.
-Similar to `reduce`, the goal is to compute a "sum" with respect to some
-arbitrary associative function; the difference for `scan` is that we
-additionally want the **sums of every prefix**.
+The `scan` primitive is one of the most fundamental operations in parallel
+computing. Similar to `reduce`, the goal is to compute a "sum" with respect to
+some arbitrary associative function; the difference with `scan` is that we
+additionally want the sums of every prefix. `scan` returns a tuple of a
+tree containing all prefix sums, and the total sum.
 
-TODO...
+Sequentially, `scan` can be accomplished with an in-order traversal and an
+"accumulator" which we use to keep track of the running sum.[^1] This is the
+variable `acc: 'a` in the following code.
+
+```sml
+  (** A recursive loop to compute scan. *)
+  fun scanLoop (f: 'a * 'a -> 'a) (acc: 'a) (t: 'a tree) : 'a tree * 'a =
+    case t of
+      Empty => (Empty, acc)
+    | Leaf x => (Leaf acc, f (acc, x))
+    | Node (n, left, right) =>
+        let
+          val (leftPrefixSums, accLeft) = scanLoop f acc left
+          val (rightPrefixSums, accRight) = scanLoop f accLeft right
+          val allSums = Node (n, leftPrefixSums, rightPrefixSums)
+        in
+          (allSums, accRight)
+        end
+
+  (** Sequential scan is just a call to the helper loop. *)
+  fun scanSeq f id t =
+    scanLoop f id t
+```
+
+The parallel algorithm for scan we will implement here is the
+"upsweep-downsweep" scan, which consists of two phases:
+  1. *Upsweep*: we compute a reduce, but build a tree which saves all
+  intermediate results. Specifically, at each internal node, we remember
+  the reduced (summed) value of all leaves under that node.
+  2. *Downsweep*: using the result of the upsweep, we push prefix sums down
+  into the original tree. This is accomplished by keeping track of a variable
+  `acc` which is the total sum of everything to the left. When we move down to
+  a left child, we keep the same `acc`. When we move down to a right child,
+  we use the stored value in the upswept tree to adjust the `acc` appropriately.
+
+For the upsweep, we define a new datatype which will be used only in the
+implementation of `scan`. The datatype is called `sum_tree`, and it has
+two cases: `GrainSum` (to store the result of the reduce below the grain size)
+and `NodeSum` (to store the result of the reduce when the two children are
+computed in parallel).
+
+```sml
+datatype 'a sum_tree =
+  GrainSum of 'a
+| NodeSum of 'a * 'a sum_tree * 'a sum_tree
+
+fun sumOf (st: 'a sum_tree) : 'a =
+  case st of
+    GrainSum x => x
+  | NodeSum (x, _, _) => x
+```
+
+TODO continue from here...
