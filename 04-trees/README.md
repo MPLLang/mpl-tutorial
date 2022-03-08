@@ -253,7 +253,7 @@ essentially no opportunity for parallelism.
         end
 ```
 
-## Balanced vs Unbalanced Performance Testing
+## Balanced vs Unbalanced Performance
 
 Here we'll measure the performance `reduce` by summing trees of different
 structure. We define two functions, `sum` and `sumSeq`, and two test trees,
@@ -346,6 +346,36 @@ calls to `ForkJoin.par`.
 nodes! As a result, the cost of `ForkJoin.par` has not been effectively
 amortized.
 
-## Other Algorithms On Trees
+### Ensuring Balance
+
+To ensure balance, we could easily adapt the trees here to be self-balancing
+via any number of schemes:
+[AVL](https://en.wikipedia.org/wiki/AVL_tree),
+[red-black](https://en.wikipedia.org/wiki/Red%E2%80%93black_tree),
+[weight-balanced](https://en.wikipedia.org/wiki/Weight-balanced_tree),
+[treaps](https://en.wikipedia.org/wiki/Treap),
+etc.
+Because we already store the sizes of subtrees at internal nodes (which is
+useful for other purposes, including granularity control), it would be
+especially easy to adapt the trees here to be weight-balanced.
+
+In a [recent paper](https://www.cs.cmu.edu/~guyb/papers/BFS16.pdf),
+Guy Blelloch, Daniel Ferizovic, and Yihan Sun showed that to implement almost
+any balancing scheme, you only need a single primitive called `join` which
+stitches two (balanced) trees together, producing a similarly balanced tree.
+All other operations which construct trees can then be implemented in terms of
+`join`, with optimal performance in theory, and excellent practical performance
+as well, including in parallel.
+
+In terms of code. this approach is especially simple: any time we would
+construct a `Node` from two trees `t1` and `t2`, we instead just call
+`join (t1, t2)`. This then ensures that all trees we build are balanced.
+
+## Scan (Parallel Prefix Sums)
+
+The `scan` primitive is one of the most fundamental for parallel computing.
+Similar to `reduce`, the goal is to compute a "sum" with respect to some
+arbitrary associative function; the difference for `scan` is that we
+additionally want the **sums of every prefix**.
 
 TODO...
