@@ -12,11 +12,15 @@ sig
   val makeBalanced: (int -> 'a) -> int -> int -> 'a tree
 
   (** sequential versions *)
+
+  val heightSeq: 'a tree -> int
   (* val mapSeq: ('a -> 'b) -> 'a tree -> 'b tree *)
   (* val filterSeq: ('a -> bool) -> 'a tree -> 'a tree *)
   val reduceSeq: ('a * 'a -> 'a) -> 'a -> 'a tree -> 'a
 
   (** parallel versions *)
+
+  val height: 'a tree -> int
   (* val map: ('a -> 'b) -> 'a tree -> 'b tree *)
   (* val filter: ('a -> bool) -> 'a tree -> 'a tree *)
   val reduce: ('a * 'a -> 'a) -> 'a -> 'a tree -> 'a
@@ -31,6 +35,8 @@ struct
 
   type 'a t = 'a tree
 
+  val GRAIN = 5000
+
 
   fun size t =
     case t of
@@ -39,14 +45,30 @@ struct
     | Node (n, _, _) => n
 
 
+  fun heightSeq t =
+    case t of
+      Empty => 0
+    | Leaf _ => 1
+    | Node (_, l, r) => 1 + Int.max (heightSeq l, heightSeq r)
+
+
+  fun height t =
+    if size t < GRAIN then
+      heightSeq t
+    else
+      case t of
+        Empty => 0
+      | Leaf _ => 1
+      | Node (n, l, r) =>
+          1 + Int.max (ForkJoin.par (fn _ => height l, fn _ => height r))
+
+
   fun reduceSeq f id t =
     case t of
       Empty => id
     | Leaf x => x
     | Node (_, left, right) => f (reduceSeq f id left, reduceSeq f id right)
 
-
-  val GRAIN = 5000
 
   fun reduce f id t =
     if size t < GRAIN then

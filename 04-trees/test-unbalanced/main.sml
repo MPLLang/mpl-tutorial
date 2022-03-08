@@ -6,6 +6,9 @@ fun sumSeq tree = Tree.reduceSeq (fn (a, b) => a+b) 0 tree
 fun sum tree = Tree.reduce (fn (a, b) => a+b) 0 tree
 
 val unbalancedTree = Tree.makeUnbalanced Int64.fromInt 0 size
+val _ =
+  print ("built unbalancedTree: height "
+         ^ Int.toString (Tree.height unbalancedTree) ^ "\n")
 
 val benchParams = {warmup = 1.0, repeat = 20}
 fun run msg f = Benchmark.run benchParams msg f

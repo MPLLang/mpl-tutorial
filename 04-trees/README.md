@@ -253,9 +253,99 @@ essentially no opportunity for parallelism.
         end
 ```
 
-## Performance Testing
+## Balanced vs Unbalanced Performance Testing
 
 Here we'll measure the performance `reduce` by summing trees of different
-structure.
+structure. We define two functions, `sum` and `sumSeq`, and two test trees,
+`balancedTree` and `unbalancedTree`.
+Both trees have 100K leaves, but while `balancedTree` has height only 18,
+`unbalancedTree` has height 100K.
 
-TODO continue here...
+```sml
+fun sumSeq tree = Tree.reduceSeq (fn (a, b) => a+b) 0 tree
+fun sum tree = Tree.reduce (fn (a, b) => a+b) 0 tree
+
+val size = 100000
+val balancedTree = Tree.makeBalanced Int64.fromInt 0 size
+val unbalancedTree = Tree.makeUnbalanced Int64.fromInt 0 size
+```
+
+In `test-balanced/` and `test-unbalanced/`, we've set up two benchmarks
+which take multiple time measurements and report the average.
+
+### Balanced Tree Performance
+First, let's measure the performance of summing the balanced tree, which has
+100K leaves and height 18. We run both sequential and parallel versions, first
+using only one processor, and then using 4 processors.
+
+Notice that on 1 processor, the parallel version has nearly identical
+performance as the sequential code, confirming that our granularity control
+is working. On 4 processors, we get about 2.5x speedup. Not bad, especially
+for such a small problem size.
+
+```
+<container># mpl test-balanced/main.mlb
+
+<container># test-balanced/main
+size 100000
+built balancedTree: height 18
+============ sequential ============
+warmup...... timing...
+sumSeq(balancedTree) time: 0.0020s
+============= parallel =============
+warmup...... timing...
+sum(balancedTree) time: 0.0021s       # uniprocessor time
+                                      # approx the same as sequential
+                                      # (good!)
+
+<container># test-balanced/main @mpl procs 4 --
+size 100000
+built balancedTree: height 18
+============ sequential ============
+warmup...... timing...
+sumSeq(balancedTree) time: 0.0019s
+============= parallel =============
+warmup...... timing...
+sum(balancedTree) time: 0.0008s       # parallel time on 4 processors
+                                      # approx 2.4x faster than sequential
+                                      # (nice!)
+```
+
+### Unbalanced Tree Performance
+In contrast, the unbalanced tree (100K leaves, 100K height) does not do so
+well. The parallel version on a single processor is 66x slower than sequential:
+
+```
+<container># mpl test-unbalanced/main.mlb
+
+<container># test-unbalanced/main
+size 100000
+built unbalancedTree: height 100000
+============ sequential ============
+warmup...... timing...
+sumSeq(unbalancedTree) time: 0.0008s
+============= parallel =============
+warmup...... timing......
+sum(unbalancedTree) time: 0.0528s    # uniprocessor time
+                                     # 66x slower than sequential!
+```
+
+**Why is it so much slower?** In this case, because of poor granularity control.
+Recall that our granularity control in `reduce` uses a fast sequential algorithm
+below the grain size, `GRAIN`, with the idea that this should significantly
+reduce the number of calls to `ForkJoin.par` and therefore amortize their cost.
+However, this approach is only effective for balanced trees.
+
+Consider that the
+number of calls to `ForkJoin.par` is determined by how many internal nodes
+of the tree have size larger than the grain size, `GRAIN`.
+**On the balanced tree**, there are approximately `n / GRAIN` internal nodes
+with size larger than the grain size, and therefore only about `n / GRAIN`
+calls to `ForkJoin.par`.
+**But on the unbalanced tree**, there are as many as `n - GRAIN` internal
+nodes! As a result, the cost of `ForkJoin.par` has not been effectively
+amortized.
+
+## Other Algorithms On Trees
+
+TODO...
