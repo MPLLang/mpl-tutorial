@@ -252,9 +252,11 @@ Well, there's no magic here. We just have to try it and measure it. Time for
 an experiment!
 
 Below, we generalize our parallel Fibonacci function to take an additional
-argument, `g`, which is the grain size. We then switch to the sequential
+argument, `g`, which is the grain size, and switch to the sequential
 algorithm when `n < g`. We then run this code on a variety of grain sizes,
-and report their times.
+and report their times. To loop through multiple grain sizes, we define
+a useful helper function, `forloop`, which takes a function as argument
+and runs it on a range of indices.
 
 [`mpl-tutorial/03-how-to-par/tuning/main.sml`](./tuning/main.sml):
 ```sml
@@ -283,26 +285,35 @@ fun timeFibWithGrain g =
     print ("grain " ^ Int.toString g ^ ": " ^ Time.toString elapsed ^ "\n")
   end
 
-val _ = timeFibWithGrain 5
-val _ = timeFibWithGrain 10
-val _ = timeFibWithGrain 15
-val _ = timeFibWithGrain 20
-val _ = timeFibWithGrain 25
+(* run f(i), f(i+1), ..., f(j-1) *)
+fun forloop (i, j, f) =
+  if i >= j then () else (f i; forloop (i+1, j, f))
+
+(** this is the same as
+  *   (timeFibWithGrain 5;
+  *    timeFibWithGrain 10;
+  *    timeFibWithGrain 15;
+  *    timeFibWithGrain 20;
+  *    timeFibWithGrain 25;
+  *    timeFibWithGrain 30)
+  *)
+val _ = forloop (1, 7, fn i => timeFibWithGrain (5*i))
 ```
 
 When we run it, we see that the running time improves significantly as the
 grain size increases, up to around a grain size of 15-20 ish. The difference
-between `n = 20` and `n = 25` is small. Choosing `n = 20` as the threshold
+from 20 to 30 is small. Choosing `n = 20` as the threshold
 seems good enough.
 
 ```
 <container># mpl tuning/main.mlb
 <container># tuning/main
-grain 5: 0.861
-grain 10: 0.275
-grain 15: 0.216
-grain 20: 0.213
-grain 25: 0.210
+grain 5: 0.868
+grain 10: 0.271
+grain 15: 0.219
+grain 20: 0.218
+grain 25: 0.213
+grain 30: 0.214
 ```
 
 Keep in mind there is statistical noise to take into account here. A proper

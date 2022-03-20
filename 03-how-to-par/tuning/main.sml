@@ -23,8 +23,16 @@ fun timeFibWithGrain g =
     print ("grain " ^ Int.toString g ^ ": " ^ Time.toString elapsed ^ "\n")
   end
 
-val _ = timeFibWithGrain 5
-val _ = timeFibWithGrain 10
-val _ = timeFibWithGrain 15
-val _ = timeFibWithGrain 20
-val _ = timeFibWithGrain 25
+(* run f(i), f(i+1), ..., f(j-1) *)
+fun forloop (i, j, f) =
+  if i >= j then () else (f i; forloop (i+1, j, f))
+
+(** this is the same as
+  *   (timeFibWithGrain 5;
+  *    timeFibWithGrain 10;
+  *    timeFibWithGrain 15;
+  *    timeFibWithGrain 20;
+  *    timeFibWithGrain 25;
+  *    timeFibWithGrain 30)
+  *)
+val _ = forloop (1, 7, fn i => timeFibWithGrain (5*i))
