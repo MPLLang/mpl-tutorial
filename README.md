@@ -52,3 +52,9 @@ balance experiments
 
 [mpl]: https://github.com/MPLLang/mpl
 [sml]: https://en.wikipedia.org/wiki/Standard_ML
+
+## FAQ
+
+**Help: Inside the Docker container, a process dies with the message `Killed`**.
+This is likely due to a Docker memory limit. See the *Docker Resource Limits*
+section of [Setup](01-setup/README.md) for instructions on how to fix.

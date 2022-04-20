@@ -103,6 +103,27 @@ finished in 15.1132s
 result [0, 0, 0, 1, 1, 2, 4, ..., 99999999]
 ```
 
+### Docker Resource Limits
+
+By default, Docker will place a limit on how much memory a container is
+permitted to use. This can cause processes inside the container to be killed,
+due to the container running out of memory.
+
+For example, you may see this when running the mergesort example, above:
+```
+<container># /root/mpl/examples/bin/msort @mpl procs 2 --
+./bin/msort @mpl procs 2 --
+generating 100000000 random integers
+sorting
+Killed
+```
+
+To fix this, you need to increaes the Docker memory limit. Here's how to
+fix it on Mac. (Navigate to Settings -> Resources -> Memory, and set it
+to a larger number, e.g. 8GB).
+
+![setting the Docker memory limit to 8GB on macOS](mac-docker-mem-fix.jpg)
+
 ## Option 2: Local Install
 
 If you are on x86-64 Linux, you can...
