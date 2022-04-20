@@ -154,7 +154,6 @@ fun iscan f id s =
     subseq t (1,n)
   end 
 
-
 fun filter f s = 
   let
     val n = length s
