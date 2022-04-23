@@ -6,7 +6,6 @@ structure AS = ArraySlice
 
 type 'a t = 'a ArraySlice.slice
 
-val GRAIN = 1
 val parfor = ForkJoin.parfor 1
 val alloc = ForkJoin.alloc
 
@@ -138,6 +137,7 @@ fun scanGen f id s =
         end
    end
 
+(* Scan exclusive *)
 fun scan f id s = 
   let 
     val t = scanGen f id s
@@ -146,6 +146,7 @@ fun scan f id s =
     (subseq t (0,n), nth t n)
   end 
 
+(* Scan inclusive *)
 fun iscan f id s = 
   let 
     val t = scanGen f id s
