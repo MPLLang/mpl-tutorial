@@ -10,6 +10,9 @@ val GRAIN = 1
 val parfor = ForkJoin.parfor 1
 val alloc = ForkJoin.alloc
 
+fun nth s i = AS.sub (s, i)
+
+fun length s = AS.length s
 
 fun fromList xs = AS.full (A.fromList xs)
 
@@ -17,11 +20,6 @@ fun toList s = List.tabulate (length s, nth s)
 
 fun toString f s =
     "<" ^ String.concatWith "," (List.map f (toList s)) ^ ">"
-
-fun length s = AS.length s
-
-fun nth s i = 
-  AS.sub (s, i)
 
   (* let  *)
   (*   val n = length s  *)
@@ -88,9 +86,10 @@ fun update s (i, v) =
 fun inject s updates =
   let
     val result = map (fn x => x) s
-    fun update (i, v) => AS.update (result, i, v)
+    fun injectOne (i, v) = AS.update (result, i, v)
+    val () = apply injectOne updates
   in
-    apply update result
+    result
   end
 
 fun reduce f id s = 
@@ -189,3 +188,4 @@ fun flatten s =
     AS.full t
   end
 
+end
