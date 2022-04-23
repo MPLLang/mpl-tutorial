@@ -11,29 +11,33 @@ val parfor = ForkJoin.parfor 1
 val alloc = ForkJoin.alloc
 
 
-fun length s = AS.length s
+fun fromList xs = AS.full (A.fromList xs)
 
-fun nth s i = 
-  let 
-    val n = length s 
-(*    val () = print ("nth: i = " ^ Int.toString i ^ " n = " ^ Int.toString n ^ "\n") *)
-   in 
-     AS.sub (s, i)
-   end
-
-
-fun empty () = AS.full (A.fromList [])
-fun fromList xs = ArraySlice.full (Array.fromList xs)
 fun toList s = List.tabulate (length s, nth s)
 
 fun toString f s =
     "<" ^ String.concatWith "," (List.map f (toList s)) ^ ">"
 
-(* Return subseq of s[i...i+n-1] *)
+fun length s = AS.length s
+
+fun nth s i = 
+  AS.sub (s, i)
+
+  (* let  *)
+  (*   val n = length s  *)
+  (*   val () = print ("nth: i = " ^ Int.toString i ^ " n = " ^ Int.toString n ^ "\n")  *)
+  (*  in       *)
+  (*  end *)
+
+
+fun empty () = fromList []
+
+(* Return subseq s[i...i+n-1] *)
 fun subseq s (i, n) = 
   AS.subslice (s, i, SOME n)
 
 fun take s k = subseq s (0, k)
+
 fun drop s k = subseq s (k, length s - k)
 
 fun foldl f b s =
@@ -51,11 +55,21 @@ fun foldl f b s =
 fun tabulate f n = 
   let 
     val s = ForkJoin.alloc n
-    val g = fn i => Array.update (s, i, f i)
-    val () = parfor (0, n) g
+    val () = parfor (0, n) (fn i => Array.update (s, i, f i))
   in 
     AS.full s
   end  
+
+fun rev s = 
+  tabulate (fn i => nth s (length s - i - 1)) (length s)
+
+fun append (s, t) =
+  tabulate 
+    (fn i => if i < length s then nth s i else nth t (i - length s))
+    (length s + length t)
+
+fun map f s = 
+  tabulate (fn i => f (nth s i)) (length s)
 
 fun apply (f: 'a -> unit) (s: 'a t): unit = 
   parfor (0, length s) (fn i => f (nth s i)) 
@@ -63,8 +77,21 @@ fun apply (f: 'a -> unit) (s: 'a t): unit =
 fun applyi (f: int * 'a -> unit) (s: 'a t): unit = 
   parfor (0, length s) (fn i => f (i, nth s i)) 
 
-fun map f s = 
-  tabulate (fn i => f (nth s i)) (length s)
+fun update s (i, v) =
+  let
+    val result = map (fn x => x) s
+    val _ = AS.update (result, i, v)
+  in
+    result
+  end
+
+fun inject s updates =
+  let
+    val result = map (fn x => x) s
+    fun update (i, v) => AS.update (result, i, v)
+  in
+    apply update result
+  end
 
 fun reduce f id s = 
   let
@@ -85,12 +112,10 @@ fun reduce f id s =
       end
    end
 
-fun rev s = tabulate (fn i => nth s (length s - i - 1)) (length s)
 
-fun append (s, t) =
-  tabulate (fn i => if i < length s then nth s i else nth t (i - length s))
-      (length s + length t)
-
+(* Compute `reduce` for all prefixes of the input sequence,
+ * including the empty and the full prefix. 
+ *)
 fun scanGen f id s = 
   let
     val n = length s
@@ -101,7 +126,6 @@ fun scanGen f id s =
     else 
       let         
         val m = Int.div (n, 2)
-        val N = m * 2
         val t = tabulate (fn i => f (nth s (2*i), nth s (2*i+1))) m
         val t = scanGen f id t
 
@@ -165,4 +189,3 @@ fun flatten s =
     AS.full t
   end
 
-end
