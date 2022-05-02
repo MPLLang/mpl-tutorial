@@ -2,7 +2,7 @@
 
 structure CLA = CommandLineArgs
 
-val defaultInput = 35
+val defaultInput = 40
 val n = CLA.parseInt "n" defaultInput
 val _ = print ("Computing fib(" ^ Int.toString n ^ ")\n")
 
