@@ -1,3 +1,2 @@
-* Create a sequential implementian for sequneces (use lists)
-* Create a simple parallel implementation for sequences (no granularity)
+* Create a sequential implementian for sequences (use lists)
 * Update the ML primer notes
