@@ -1,7 +1,16 @@
 $(SML_LIB)/basis/basis.mlb
+compat/mpl.mlb
+
 $(SML_LIB)/basis/fork-join.mlb
 CommandLineArgs.sml
 Util.sml
 Benchmark.sml
 SeqBasis.sml
 Seq.sml
+Parse.sml
+ReadFile.sml
+BinarySearch.sml
+Merge.sml
+QuickSort.sml
+MergeSort.sml
+AdjacencyGraph.sml
