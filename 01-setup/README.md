@@ -36,6 +36,23 @@ and outside the container. This ensure that any changes you make will not be
 lost when you exit the container, and also allows you to use any text editor
 outside the container to edit files.
 
+### Pull the library
+
+Once you have started the container, you need to pull the library code:
+
+```
+<container># pwd
+/root/mpl-tutorial
+<container># smlpkg sync
+```
+
+This populates the directory `lib` with packages that this tutorial depends
+on. You only need to do this once, when starting the tutorial for the first
+time.
+
+Do not modify the contents of the `lib` subdirectory. These are maintained
+by the package manager.
+
 ### MPL in the Container
 
 In the container, you can double check that `mpl` has already been installed

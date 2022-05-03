@@ -16,15 +16,30 @@ All source code is contained in this repo. Some of the examples use the
 
 ## Get started
 
+(**Note**: more detailed instructions available [here](01-setup/README.md)).
+
 We recommend that you clone this repository and then run the tutorial
-in a [Docker container](https://www.docker.com/) using the top-level Dockerfile:
+in a [Docker container](https://www.docker.com/) using the top-level Dockerfile.
 
 ```
 $ git clone https://github.com/MPLLang/mpl-tutorial.git
 $ cd mpl-tutorial
 $ ./start-container.sh
 ```
-This opens a bash shell in the container. The directory structure inside the
+
+This opens a bash shell in the container, which should have a prompt that
+looks something like this (the numbers after `root@` may differ; this is
+normal):
+```
+root@b80fc75d8c76:~/mpl-tutorial#
+```
+
+For simplicity throughout the tutorial, we will write `<container>#` before
+commands that are intended to be run inside the Docker container.
+
+### Inside the container
+
+The directory structure inside the
 container is as follows. Starting the container puts us inside the
 `mpl-tutorial` directory.
 
@@ -40,7 +55,22 @@ and outside the container. This ensure that any changes you make will not be
 lost when you exit the container, and also allows you to use any text editor
 outside the container to edit files.
 
-More detailed instructions are [here](01-setup/README.md).
+### Pull the library
+
+Once you have started the container, you need to pull the library code:
+
+```
+<container># pwd
+/root/mpl-tutorial
+<container># smlpkg sync
+```
+
+This populates the directory `lib` with packages that this tutorial depends
+on. You only need to do this once, when starting the tutorial for the first
+time.
+
+Do not modify the contents of the `lib` subdirectory. These are maintained
+by the package manager.
 
 ## Table of Contents
 
