@@ -88,3 +88,7 @@ balance experiments
 **Help: Inside the Docker container, a process dies with the message `Killed`**.
 This is likely due to a Docker memory limit. See the *Docker Resource Limits*
 section of [Setup](01-setup/README.md) for instructions on how to fix.
+
+**Help: When compiling, I see a long string of errors such as `Undefined structure`**.
+Make sure you've pulled the library code. See the *Pull the library* section,
+above.
