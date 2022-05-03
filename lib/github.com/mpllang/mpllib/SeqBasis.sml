@@ -2,10 +2,7 @@ structure SeqBasis:
 sig
   type grain = int
 
-  val tabulate: grain
-             -> (int * int)
-             -> (int -> 'a)
-             -> 'a array
+  val tabulate: grain -> (int * int) -> (int -> 'a) -> 'a array
 
   val foldl: ('b * 'a -> 'b)
           -> 'b
@@ -37,12 +34,6 @@ sig
               -> (int * int)
               -> (int -> 'a option)
               -> 'a array
-
-  val merge: grain
-          -> ('a * 'a -> order)
-          -> int * int * (int -> 'a)
-          -> int * int * (int -> 'a)
-          -> 'a array
 end =
 struct
 
@@ -62,7 +53,6 @@ struct
   val parfor = ForkJoin.parfor
   val par = ForkJoin.par
   val allocate = ForkJoin.alloc
-  val for = Util.for
 
   fun tabulate grain (lo, hi) f =
     let
@@ -92,7 +82,7 @@ struct
       let
         val n = hi - lo
         val k = grain
-        val m = Util.ceilDiv n k (* number of blocks *)
+        val m = 1 + (n-1) div k (* number of blocks *)
 
         fun red i j =
           case j - i of
@@ -120,7 +110,7 @@ struct
       let
         val n = hi - lo
         val k = grain
-        val m = Util.ceilDiv n k (* number of blocks *)
+        val m = 1 + (n-1) div k (* number of blocks *)
         val sums = tabulate 1 (0, m) (fn i =>
           let val start = lo + i*k
           in foldl g b (start, Int.min (start+k, hi)) f
@@ -144,7 +134,7 @@ struct
     let
       val n = hi - lo
       val k = grain
-      val m = Util.ceilDiv n k (* number of blocks *)
+      val m = 1 + (n-1) div k (* number of blocks *)
       fun count (i, j) c =
         if i >= j then c
         else if g i then count (i+1, j) (c+1)
@@ -171,7 +161,7 @@ struct
     let
       val n = hi - lo
       val k = grain
-      val m = Util.ceilDiv n k (* number of blocks *)
+      val m = 1 + (n-1) div k (* number of blocks *)
       val tmp = allocate n
 
       fun filterSeq (i,j,k) =
@@ -203,100 +193,6 @@ struct
           Util.for (0, size) (fn j =>
             A.update (result, doff+j, A.sub (tmp, soff+j)))
         end);
-      result
-    end
-
-  fun writeMergeSerial cmp (lo1, hi1, f1) (lo2, hi2, f2) out =
-    let
-      fun write i x = AS.update (out, i, x)
-
-      (** In the following code,
-        *   [i1] is an index for [f1]
-        *   [i2] is an index for [f2]
-        *   [j] is an index into [out]
-        *
-        * I wrote this in a way to guarantee that the elements of [f1] and
-        * [f2] are each evaluated exactly once.
-        *)
-
-      fun finish1 i1 j =
-        for (0, hi1-i1) (fn k => write (j+k) (f1 (i1+k)))
-      fun finish2 i2 j =
-        for (0, hi2-i2) (fn k => write (j+k) (f2 (i2+k)))
-
-      fun loopGet1 i1 (i2, x2) j =
-        if i1 >= hi1 then
-          (write j x2; finish2 (i2+1) (j+1))
-        else
-          loop (i1, f1 i1) (i2, x2) j
-
-      and loopGet2 (i1, x1) i2 j =
-        if i2 >= hi2 then
-          (write j x1; finish1 (i1+1) (j+1))
-        else
-          loop (i1, x1) (i2, f2 i2) j
-
-      and loop (i1, x1) (i2, x2) j =
-        if cmp (x1, x2) = GREATER then
-          (write j x2; loopGet2 (i1, x1) (i2+1) (j+1))
-        else
-          (write j x1; loopGet1 (i1+1) (i2, x2) (j+1))
-
-    in
-      if lo1 >= hi1 then
-        finish2 lo2 0
-      else if lo2 >= hi2 then
-        finish1 lo1 0
-      else
-        loop (lo1, f1 lo1) (lo2, f2 lo2) 0
-    end
-
-  fun binarySearch cmp (lo, hi, f) x =
-    if lo >= hi then
-      lo
-    else
-      let
-        val mid = lo + (hi-lo) div 2
-      in
-        case cmp (x, f mid) of
-          LESS =>
-            binarySearch cmp (lo, mid, f) x
-        | GREATER =>
-            binarySearch cmp (mid+1, hi, f) x
-        | EQUAL =>
-            mid
-      end
-
-  fun writeMerge grain cmp (s1 as (lo1, hi1, f1)) (s2 as (lo2, hi2, f2)) out =
-    if (hi1-lo1) + (hi2-lo2) <= grain then
-      writeMergeSerial cmp s1 s2 out
-    else if lo1 >= hi1 then
-      parfor grain (lo2, hi2) (fn i2 => AS.update (out, i2-lo2, f2 i2))
-    else
-      let
-        val mid1 = lo1 + (hi1 - lo1) div 2
-        val pivot = f1 mid1
-        val mid2 = binarySearch cmp s2 pivot
-
-        val outMid = (mid1-lo1)+(mid2-lo2)
-        val outLeft = ArraySlice.subslice (out, 0, SOME outMid)
-        val outRight = ArraySlice.subslice (out, 1+outMid, NONE)
-      in
-        ArraySlice.update (out, outMid, pivot);
-
-        par (fn _ => writeMerge grain cmp (lo1, mid1, f1) (lo2, mid2, f2) outLeft,
-             fn _ => writeMerge grain cmp (mid1+1, hi1, f1) (mid2, hi2, f2) outRight);
-
-        ()
-      end
-
-  fun merge grain cmp (s1 as (lo1, hi1, f1)) (s2 as (lo2, hi2, f2)) =
-    let
-      val n1 = hi1-lo1
-      val n2 = hi2-lo2
-      val result = allocate (n1+n2)
-    in
-      writeMerge grain cmp s1 s2 (AS.full result);
       result
     end
 

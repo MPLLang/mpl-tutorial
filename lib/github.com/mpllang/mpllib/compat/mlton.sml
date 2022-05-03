@@ -45,16 +45,11 @@ structure ReadFile = PosixReadFile
 structure GCStats:
 sig
   val report: unit -> unit
-  val susMarks: unit -> LargeInt.int
-  val eChecks: unit -> LargeInt.int
 end =
 struct
 
   fun p name thing =
     print (name ^ ": " ^ thing () ^ "\n")
-
-  fun susMarks () : LargeInt.int = 0
-  fun eChecks () : LargeInt.int = 0
 
   fun report () =
     let

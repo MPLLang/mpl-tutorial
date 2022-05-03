@@ -1,31 +1,9 @@
-structure Seq:
-sig
-  type 'a t
-  type 'a seq = 'a t
-
-  val nth: 'a seq -> int -> 'a
-  val length: 'a seq -> int
-
-  val empty: unit -> 'a seq
-  val tabulate: (int -> 'a) -> int -> 'a seq
-  val append: 'a seq * 'a seq -> 'a seq
-
-  val subseq: 'a seq -> int * int -> 'a seq
-  val take: 'a seq -> int -> 'a seq
-  val drop: 'a seq -> int -> 'a seq
-
-  val iterate: ('b * 'a -> 'b) -> 'b  -> 'a seq -> 'b
-  val filter: ('a -> bool) -> 'a seq -> 'a seq
-  val map: ('a -> 'b) -> 'a seq -> 'b seq
-  val reduce: ('a * 'a -> 'a) -> 'a -> 'a seq -> 'a
-  val scan: ('a * 'a -> 'a) -> 'a -> 'a seq -> 'a seq * 'a
-end =
+structure Seq =
 struct
   structure A = Array
   structure AS = ArraySlice
-   
+
   type 'a t = 'a ArraySlice.slice
-  type 'a seq = 'a t
 
   val gran = 10000
 
@@ -113,4 +91,3 @@ struct
   fun singleton x = tabulate (fn _ => x) 1
 
 end
-

@@ -11,8 +11,8 @@ already know SML, but you should be comfortable with using the command-line
 shell and know some basic programming (integers, booleans, conditionals,
 variables, functions, recursion, etc.).
 
-All source code is contained in this repo. Some of the examples use
-primitives from a shared library [lib/](lib/).
+All source code is contained in this repo. Some of the examples use the
+[`mpllib`](https://github.com/MPLLang/mpllib).
 
 ## Get started
 

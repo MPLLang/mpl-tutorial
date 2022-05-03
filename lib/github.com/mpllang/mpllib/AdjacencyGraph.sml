@@ -210,6 +210,15 @@ struct
         in
           graph
         end
+      else if String.isPrefix h2 actualHeader then
+        let
+          val (c, tm) = Util.getTime (fn _ => ReadFile.contentsBinSeq path)
+          val _ = print ("read file in " ^ Time.fmt 4 tm ^ "s\n")
+          val (graph, tm) = Util.getTime (fn _ => parseBin c)
+          val _ = print ("parsed graph in " ^ Time.fmt 4 tm ^ "s\n")
+        in
+          graph
+        end
       else
         raise Fail ("unknown header " ^ actualHeader)
     end
