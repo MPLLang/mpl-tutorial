@@ -119,8 +119,10 @@ There are three things in this code we haven't seen before:
 
 [`mpl-tutorial/03-how-to-par/bad-par/main.sml`](./bad-par/main.sml):
 ```sml
-val result = badParFib 35
-val _ = print (Int.toString result ^ "\n")
+val n = 35
+val _ = print ("Computing fib(" ^ Int.toString n ^ ")\n")
+val result = badParFib n
+val _ = print ("fib(" ^ Int.toString n ^ ") = " ^ Int.toString result ^ "\n")
 ```
 
 **Compile and run it**. Here is an appropriate `.mlb` file for compilation.
@@ -142,14 +144,16 @@ the syntax is `./program @mpl procs N --`.
 <container># mpl bad-par/main.mlb
 
 <container># time bad-par/main
-9227465
+Computing fib(35)
+fib(35) = 9227465
 
 real	0m2.432s
 user	0m1.843s
 sys	0m0.586s
 
 <container># time bad-par/main @mpl procs 2 --
-9227465
+Computing fib(35)
+fib(35) = 9227465
 
 real	0m1.337s     # about 2x faster on 2 processors!
 user	0m1.902s
@@ -174,7 +178,8 @@ sequential `fib` program.
 ```
 <container># mpl sequential/main.mlb
 <container># time sequential/main
-9227465
+Computing fib(35)
+fib(35) = 9227465
 
 real	0m0.216s
 user	0m0.213s
@@ -182,7 +187,8 @@ sys	0m0.001s
 
 <container># mpl bad-par/main.mlb
 <container># time bad-par/main
-9227465
+Computing fib(35)
+fib(35) = 9227465
 
 real	0m2.432s     # 10x slower than the sequential code!
 user	0m1.843s
@@ -227,14 +233,16 @@ still parallel. We get the best of both worlds.
 ```
 <container># mpl fast-par/main.mlb
 <container># time fast-par/main
-9227465
+Computing fib(35)
+fib(35) = 9227465
 
 real	0m0.211s      # almost exactly the same as sequential fib!
 user	0m0.209s
 sys	0m0.001s
 
 <container># time fast-par/main @mpl procs 2 --
-9227465
+Computing fib(35)
+fib(35) = 9227465
 
 real	0m0.110s      # still gets 2x faster on 2 processors!
 user	0m0.215s
