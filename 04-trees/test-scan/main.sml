@@ -11,7 +11,7 @@ val _ =
          ^ Int.toString (Tree.height input) ^ "\n")
 
 val benchParams = {warmup = 5.0, repeat = 20}
-fun run msg f = Benchmark.run benchParams msg f
+fun run msg f = TutorialBenchmark.run benchParams msg f
 
 (* sequential performance *)
 val _ = print ("============ sequential ============\n")

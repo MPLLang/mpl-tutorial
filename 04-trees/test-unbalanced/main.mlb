@@ -1,13 +1,3 @@
-$(SML_LIB)/basis/basis.mlb
-$(SML_LIB)/basis/fork-join.mlb
-
-local
-  ../../lib/sources.mlb
-in
-  structure CommandLineArgs
-  structure Util
-  structure Benchmark
-end
-
+../../local/sources.mlb
 ../Tree.sml
 main.sml
