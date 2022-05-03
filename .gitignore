@@ -1,8 +1,6 @@
 #*
 *~
 
-lib/
-
 02-hello/hello
 02-hello/hello-twice
 02-hello/foobar
