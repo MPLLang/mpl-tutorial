@@ -36,7 +36,7 @@ fun printWork s nested updates evens max sUpdated t scanMax it flat =
       ()
     end
 
-val _ = print ("# Begin: example, n =" ^ Int.toString n ^ "\n")
+val _ = print ("# Begin: Array Sequences, n =" ^ Int.toString n ^ "\n")
 val s = S.tabulate (fn i => i) n
 val nested = S.tabulate (fn i => s) (Int.min (1 + Int.div (n, 1000), 10))
 
@@ -50,4 +50,4 @@ val it = S.iscan Int.max 0 s
 val flat = S.flatten nested
 
 val () = printWork s  nested updates evens max sUpdated t scanMax it flat 
-val _ = print ("# End: example\n")
+val _ = print ("# End: Array sequences\n")
