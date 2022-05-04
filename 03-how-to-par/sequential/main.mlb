@@ -1,3 +1,4 @@
 $(SML_LIB)/basis/basis.mlb
+../../local/sources.mlb
 fib.sml
 main.sml

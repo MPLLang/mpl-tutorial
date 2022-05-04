@@ -3,7 +3,7 @@
 structure CLA = CommandLineArgs
 structure S = ArraySequence
 
-val defaultInput = 1024 * 1024 * 1024
+val defaultInput = 1024 * 1024
 val n = CLA.parseInt "n" defaultInput
 val _ = print("Tabulating an array of " ^ Int.toString n ^ " integers\n")
 val s = S.tabulate (fn i => Int.mod (i, 100)) n
