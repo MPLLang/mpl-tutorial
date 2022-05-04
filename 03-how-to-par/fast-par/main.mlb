@@ -1,5 +1,4 @@
 $(SML_LIB)/basis/basis.mlb
-$(SML_LIB)/basis/fork-join.mlb
 ../../local/sources.mlb
 ../sequential/fib.sml
 fast-par-fib.sml
