@@ -1,3 +1,8 @@
+(* bfs.sml
+ * A parallel implementation of BFS based on sequence primitives
+ * This implementation does not use concurrency primitives such as cas
+ * It relies on sequence inject instead 
+ *)
 structure BFS =
 struct
   exception InternalError
