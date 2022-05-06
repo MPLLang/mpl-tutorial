@@ -39,8 +39,13 @@ struct
             val edges = S.flatten (S.map f frontier)
             val visited' = S.inject (visited, edges)
             val frontier' = S.filtermap
-                            (fn (u, v) => status visited' u = v) edges
+                            (fn (u, v) => status visited' u = v) 
                             (fn (u, v) => u)
+                            edges
+            (*
+            val winners = S.filter (fn (u, v) => status visited' u = v) edges
+            val frontier' = S.map (fn (u, v) => u) winners
+            *)
           in
             search (visited', frontier')
           end 
