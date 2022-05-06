@@ -1,4 +1,4 @@
-structure SerialBFS =
+structure SequentialBFS =
 struct
 
   structure G = AdjacencyGraph(Int)
