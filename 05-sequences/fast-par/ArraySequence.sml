@@ -48,6 +48,9 @@ fun foldl f b s =
      fold b 0
    end
 
+fun iterate f b s =
+  foldl f b s
+
 fun tabulate f n = 
   let 
     val s = ForkJoin.alloc n
