@@ -25,29 +25,13 @@ struct
           let 
 
             fun claim (u, v) = 
-              (* claim u via v *)
-              let
-                val _ = print ("Claiming " ^ Int.toString u ^ " via " ^ Int.toString v ^ "\n")
-                val claimed = 
                 Array.sub (visited, u) = ~1
                 andalso
                 ~1 = Concurrency.casArray (visited, u) (~1, v) 
-                val _ = print ("Claimed: " ^ Bool.toString claimed ^ "\n")
-              in
-                claimed
-              end
 
             fun visit(v) = 
-              let
-                val ns = neighbors v
-                val _ = print ("Neighbors " ^ S.toString Int.toString ns ^ "\n")         
-                val fns =  S.filter (fn u => claim (u, v)) ns
-                val _ = print ("Neigbors filtered " ^ S.toString Int.toString fns ^ "\n")
-              in
-                fns
-              end 
+              S.filterSafe (fn u => claim (u, v)) (neighbors v)
 
-            val _ = print ("Frontier " ^ S.toString Int.toString frontier ^ "\n")
             val frontier' = S.flatten (S.map visit frontier)
           in
             search (visited, frontier')
