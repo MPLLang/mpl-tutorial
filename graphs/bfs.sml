@@ -1,5 +1,6 @@
-(* Usage: main <input file> [-source <vertex number>] [--check] 
- * Example: main inputs/rmat-1K-symm -source 0 --check
+(* Usage:
+ * bfs <input file> [-source <vertex number>] [--check] [--seq | --par | --parcas] 
+ * Example: bfs inputs/rmat-1K-symm -source 0 --check --parcas
  *)
 
 structure CLA = CommandLineArgs
