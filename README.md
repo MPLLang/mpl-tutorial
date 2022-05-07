@@ -81,7 +81,7 @@ by the package manager.
 balance experiments
 4. [Sequences](sequences/README.md): parallel algorithms on sequences
 5. [MCSS](mcss/README.md): the Maximum Contigous Subsequence Sum problem
-6. [Graphs](graphs/README.md): graphs
+6. [BFS](bfs/README.md): Breadth First Search.
 
 [mpl]: https://github.com/MPLLang/mpl
 [sml]: https://en.wikipedia.org/wiki/Standard_ML
