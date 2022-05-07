@@ -1,5 +1,6 @@
-(* Usage: main <input file> [-source <vertex number>] [--check] 
- * Example: main inputs/rmat-1K-symm -source 0 --check
+(* Usage:
+ * bfs <input file> [-source <vertex number>] [--check] [--seq | --par | --parcas] 
+ * Example: bfs inputs/rmat-1K-symm -source 0 --check --parcas
  *)
 
 structure CLA = CommandLineArgs
@@ -7,9 +8,10 @@ structure G = AdjacencyGraph(Int)
 
 structure SBFS = SequentialBFS
 structure PBFS = ParBFS
+structure PCASBFS = ParCASBFS
 structure DBFS = DoptBFS
 
-val usage = "bfs <filename> <mode: seq|par|dopt> [--source <number>] [--check]"
+val usage = "bfs <filename> <mode: seq | dopt | par | parcas> [--source <number>] [--check]"
 val source = CLA.parseInt "source" 0
 val doCheck = CLA.parseFlag "check"
 
@@ -90,10 +92,12 @@ val graph = readGraph(filename)
 
 val () = if mode = "seq" then
            runBFS graph source SBFS.bfs
-         else if mode = "par" then
-           runBFS graph source PBFS.bfs
          else if mode = "dopt" then
            runBFS graph source DBFS.bfs
+         else if mode = "parcas" then
+           runBFS graph source PCASBFS.bfs
+         else if mode = "par" then
+           runBFS graph source PBFS.bfs
          else
            print ("Incorrect mode:" ^ usage)
 

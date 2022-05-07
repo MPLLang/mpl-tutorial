@@ -10,10 +10,6 @@ struct
   structure G = AdjacencyGraph(Int)
   structure S = ArraySequence 
 
-  fun fib n = 
-    if n <= 1 then n
-    else fib (n-1) + fib (n-2)
-
   fun bfs g s: int S.seq =
     let
       fun neighbors v = G.neighbors g v
@@ -27,9 +23,6 @@ struct
           visited
         else
           let 
-            fun status visited u = 
-              S.nth visited u
-
             fun f(v) = 
               S.filtermap 
                 (fn u => status visited u = ~1) 
@@ -37,14 +30,14 @@ struct
                 (neighbors v)
 
             val edges = S.flatten (S.map f frontier)
-            val visited' = S.inject (visited, edges)
+            val visited' = S.inject (visited, edges) 
             val frontier' = S.filtermap
-                            (fn (u, v) => status visited' u = v) edges
+                            (fn (u, v) => S.nth visited u = v) 
                             (fn (u, v) => u)
+                            edges
           in
-            search (visited', frontier')
+            search (visited, frontier')
           end 
-           
 
       val visited = S.tabulate (fn i => if i = s then s else ~1) n
       val frontier = S.singleton s

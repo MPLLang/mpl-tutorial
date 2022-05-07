@@ -2,5 +2,6 @@
 offset-search.sml
 dopt-bfs.sml
 par-bfs.sml
+par-cas-bfs.sml
 seq-bfs.sml
 bfs.sml
