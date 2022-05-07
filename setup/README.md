@@ -1,6 +1,6 @@
 # 1: Setup
 
-[(Hello World →)](../02-hello/README.md)
+[(Hello World →)](../hello/README.md)
 
 There are two options:
   1. Run the tutorial in a Docker container. [Instructions below](#option-1-docker)

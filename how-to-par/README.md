@@ -1,7 +1,7 @@
 # 3. Parallelism and Granularity Control
 
-[(← Hello World)](../02-hello/README.md)
-[(Trees →)](../04-trees/README.md)
+[(← Hello World)](../README.md)
+[(Trees →)](../trees/README.md)
 
 ## Preliminaries
 
