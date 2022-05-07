@@ -16,7 +16,7 @@ All source code is contained in this repo. Some of the examples use the
 
 ## Get started
 
-(**Note**: more detailed instructions available [here](01-setup/README.md)).
+(**Note**: more detailed instructions available [here](setup/README.md)).
 
 We recommend that you clone this repository and then run the tutorial
 in a [Docker container](https://www.docker.com/) using the top-level Dockerfile.
@@ -74,11 +74,14 @@ by the package manager.
 
 ## Table of Contents
 
-1. [Setup](01-setup/README.md): running with docker and/or installing the compiler
-2. [Hello World](02-hello/README.md): writing, compiling, and running a simple program
-3. [Parallelism and Granularity Control](03-how-to-par/README.md): simple parallelism with `ForkJoin.par`, and work-efficiency via granularity control
-4. [Trees](04-trees/README.md): parallel algorithms on binary trees, tree
+1. [Setup](setup/README.md): running with docker and/or installing the compiler
+2. [Hello World](hello/README.md): writing, compiling, and running a simple program
+3. [Parallelism and Granularity Control](how-to-par/README.md): simple parallelism with `ForkJoin.par`, and work-efficiency via granularity control
+4. [Trees](trees/README.md): parallel algorithms on binary trees, tree
 balance experiments
+4. [Sequences](sequences/README.md): parallel algorithms on sequences
+5. [MCSS](mcss/README.md): the Maximum Contigous Subsequence Sum problem
+6. [Graphs](graphs/README.md): graphs
 
 [mpl]: https://github.com/MPLLang/mpl
 [sml]: https://en.wikipedia.org/wiki/Standard_ML
@@ -87,7 +90,7 @@ balance experiments
 
 **Help: Inside the Docker container, a process dies with the message `Killed`**.
 This is likely due to a Docker memory limit. See the *Docker Resource Limits*
-section of [Setup](01-setup/README.md) for instructions on how to fix.
+section of [Setup](setup/README.md) for instructions on how to fix.
 
 **Help: When compiling, I see a long string of errors such as `Undefined structure`**.
 Make sure you've pulled the library code. See the *Pull the library* section,
