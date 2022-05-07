@@ -1,6 +1,7 @@
 # 4. Trees
 
-[(← Parallelism and Granularity Control)](../03-how-to-par/README.md)
+[(← Parallelism and Granularity Control)](../how-to-par/README.md)
+[(Sequences →)](../sequences/README.md)
 
 ## Preliminaries
 
