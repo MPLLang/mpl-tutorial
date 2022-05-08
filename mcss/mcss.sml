@@ -31,10 +31,30 @@ fun mcssSeq a =
         (sum', max')
       end
 
-    val (b, (_, max)) = S.iteratePrefixes f (I.fromInt 0, S.first a) a
+    val (_, max) = S.iterate f (I.fromInt 0, S.first a) a
   in
     max
   end 
+
+fun mcssSeqWithPrefix a = 
+  let
+    fun f((sum, max, maxprefix, total), x) = 
+      let   
+        val sumx = I.+(sum, x)
+        val sum' =  if I.>= (sumx, x) then sumx else x
+        val max' = I.max(max, sum')     
+        val maxprefix' = I.max(total, maxprefix)
+        val total' = I.+(total, x)
+      in
+        (sum', max', maxprefix', total')
+      end
+
+    val (_, max, maxprefix, total) = S.iterate f (S.first a, S.first a, S.first a, S.first a) (S.drop a 1)
+
+  in
+    (max, maxprefix, total)
+  end 
+
 
 fun mcss a = 
   let 
@@ -51,25 +71,38 @@ fun mcss a =
 
 fun mcssdc a = 
   let
-    val GRAIN = 10000
-    fun parameters a =
-      let 
-        val b = S.scanWithTotal I.+ 0 a
-        val total = S.last b
-        val maxprefix = S.reduce I.max (S.first b) b
-        val c = S.tabulate (fn i => total - (S.nth b i)) (S.length b)
-        val maxsuffix = S.reduce I.max (S.first c) c
-      in
-        (maxprefix, maxsuffix, total)
-      end        
+    val GRAIN = 100000
+
+    fun maxSuffix a =
+    let
+      fun f((sum, max), x) = 
+        let
+          val sum' = I.+(sum, x)
+          val max' = I.max(max, sum')
+        in
+          (sum', max')
+        end
+
+      val (_, max) = S.foldr f (S.last a, S.last a) (S.take a (S.length a - 1))
+    in
+      max
+    end 
 
     fun mcss a = 
       if S.length a <= GRAIN then
         let 
-          val (maxprefix, maxsuffix, total) = parameters a
-          val m = mcssSeq a
+          val (m, xprefix, total) = mcssSeqWithPrefix a
+          val xsuffix = maxSuffix a
+(*
+          val _ = print ("input = " ^ S.toString I.toString a ^ "\n")
+          val _ = print ("m = " ^ I.toString m ^ 
+                         " xprefix = " ^ I.toString xprefix ^ 
+                         " xsuffix = " ^ I.toString xsuffix ^ 
+                         " total = " ^ I.toString total ^ "\n")
+
+*)
         in
-          (m, maxprefix, maxsuffix, total)
+          (m, xprefix, xsuffix, total)
         end
       else 
         let
@@ -78,11 +111,14 @@ fun mcssdc a =
                                    fn () => mcss (S.subseqOpt a (nl, NONE)))
           val (ml, pl, sl, tl) = left
           val (mr, pr, sr, tr) = right
+
+          val (m, p, s, t) = 
+            (I.max (sl + pr, I.max(ml, mr)),
+             I.max (pl, tl + pr),
+             I.max (sl + tr, sr),
+             I.+(tl, tr))
         in
-          (I.max (sl + pr, I.max(ml, mr)),
-           I.max (pl, tl + pr),
-           I.max (sl + tr, sr),
-           I.+(tl, tr))
+          (m, p, s, t)
         end
     val (m, _, _, _) = mcss a
   in
@@ -134,7 +170,8 @@ val _ =
       if result = resultSeq then
         print ("Correct? YES\n")
       else
-        print ("Correct? NO! Got: " ^ I.toString result ^ " expected: " ^ I.toString resultSeq ^ "\n")
+        (print ("Correct? NO! Got: " ^ I.toString result ^ " expected: " ^ I.toString resultSeq ^ "\n");
+         print ("Input: " ^ S.toString I.toString (S.take s 10) ^ "\n"))
     end
   else 
     ()
