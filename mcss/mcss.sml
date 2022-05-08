@@ -106,9 +106,10 @@ fun mcssdc a =
         end
       else 
         let
-          val nl = (S.length a) div 2
-          val (left, right) = par (fn () => mcss (S.subseqOpt a (0, SOME nl)), 
-                                   fn () => mcss (S.subseqOpt a (nl, NONE)))
+          val n = S.length a
+          val nl = n div 2
+          val (left, right) = par (fn () => mcss (S.subseq a (0, nl)), 
+                                   fn () => mcss (S.subseq a (nl, n)))
           val (ml, pl, sl, tl) = left
           val (mr, pr, sr, tr) = right
 
