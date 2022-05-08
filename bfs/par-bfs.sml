@@ -25,7 +25,7 @@ struct
           let 
             fun f(v) = 
               S.filtermap 
-                (fn u => status visited u = ~1) 
+                (fn u => S.nth visited u = ~1) 
                 (fn u => (u, v)) 
                 (neighbors v)
 
