@@ -32,11 +32,11 @@ struct
             val edges = S.flatten (S.map f frontier)
             val visited' = S.inject (visited, edges) 
             val frontier' = S.filtermap
-                            (fn (u, v) => S.nth visited u = v) 
+                            (fn (u, v) => S.nth visited' u = v) 
                             (fn (u, v) => u)
                             edges
           in
-            search (visited, frontier')
+            search (visited', frontier')
           end 
 
       val visited = S.tabulate (fn i => if i = s then s else ~1) n
