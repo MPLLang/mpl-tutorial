@@ -7,6 +7,24 @@ val defaultInput = 9
 val n = CLA.parseInt "n" defaultInput
 
 
+fun test_bisplit () = 
+  let 
+    val a = S.tabulate (fn i => 2*i) n
+    val b = S.tabulate (fn i => 2*i + 1) n
+
+    val sa = S.toString Int.toString a
+    val sb = S.toString Int.toString b
+    val _ = print ("a = " ^ sa ^ "\n")
+    val _ = print ("b = " ^ sb ^ "\n")
+
+    val (i, j) = S.bisplit a b (6)
+    val _ = print ("split at i        : " ^ 
+                   Int.toString i ^ " and " ^ " j = " ^ Int.toString j ^ "\n")
+
+  in
+    ()
+  end
+
 fun printWork s nested updates evens max sUpdated t scanMax it flat = 
   if n > defaultInput then
     ()

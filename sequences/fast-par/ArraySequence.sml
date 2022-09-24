@@ -60,7 +60,6 @@ fun tabulate f n =
     AS.full s
   end  
 
-
 fun rev s = tabulate (fn i => nth s (length s - i - 1)) (length s)
 
 fun append (s, t) =
@@ -226,6 +225,71 @@ fun flatten s =
         end)
   in 
     AS.full t
+  end
+
+(* Split sorted sequences a and b into 
+1) aleft, aright
+2) bleft, bright
+such that aleft <= bright and bleft <= aright
+          and |aleft| + |bleft| = k
+Return i and j, where aleft = a[0, ... i] and bleft = b[0, ... j]
+
+*)        
+ 
+fun bisplit a b k =  
+  let 
+    fun split a b k i j = 
+      let 
+        val _ = print ("* k = " ^ Int.toString k ^ "\n")
+        val _ = print ("i = " ^ Int.toString i ^ " j = " ^ Int.toString j ^ "\n")
+      in
+      case (length a, length b) of
+        (0, 0) => (i, j)
+      | (0, _) => (i, j + k)
+      | (_, 0) => (i + k, j)
+      | (_, _) =>  
+        let
+          val na = length a
+          val nb = length b
+          val midA = Int.div(na, 2) 
+          val midB = Int.div(nb, 2) 
+          val _ = print ("nA = " ^ Int.toString na ^ " nB = " ^ Int.toString nb ^ "\n")
+          val _ = print ("midA = " ^ Int.toString midA ^ " midB = " ^ Int.toString midB ^ "\n")
+        in
+          if k <= midA + midB + 1 then
+            if nth a midA < nth b midB then
+              let 
+                val _ = print "k <= midA + mibB and a[midA] < b[midB]\n"
+              in
+              (* Drop b[midB ..] *)
+              split a (subseq b (0, midB)) k i j
+              end
+            else
+              let 
+                val _ = print "k <= midA + mibB and a[midA] >= b[midB]\n"
+              in
+              (* Drop a[midA ..] *)
+              split (subseq a (0, midA)) b k i j
+              end
+          else
+            if nth a midA < nth b midB then
+              let 
+                val _ = print "k > midA + mibB and a[midA] < b[midB]\n"
+              in
+              (* Drop a[0 .. midA] *)
+              split (subseq a (midA + 1, na - midA - 1 )) b (k - midA - 1) (i + midA + 1) j
+              end
+            else
+              let 
+                val _ = print "k > midA + mibB and a[midA] >= b[midB]\n"
+              in
+              (* Drop b[0 .. midB] *)
+              split a (subseq b (midB + 1, nb - midB - 1))  (k - midB - 1) i (j + midB + 1)
+              end
+        end    
+      end
+  in
+    split a b k ~1 ~1
   end
 
 end
