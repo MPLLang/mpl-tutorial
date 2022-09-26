@@ -232,6 +232,32 @@ fun flatten s =
     AS.full t
   end
 
+fun binarySearch cmp a k = 
+  let 
+    fun search (i, j) = 
+      let 
+        val n = j - i
+      in
+        if n = 0 then
+          NONE
+        else if n = 1 then
+          case cmp (k, sub a i) of
+            LESS => NONE
+          | GREATER => NONE
+          | EQUAL => SOME
+        else
+          let val mid = Int.div (i + j, 2) in
+            case cmp (k, sub a mid) of
+              LESS => search (i, mid)
+            | GREATER => search (mid+1, j)
+            | EQUAL => SOME mid
+          end
+      end
+   in
+     search (0, length a)
+   end          
+            
+          
 (* Split sorted sequences a and b into 
 1) aleft, aright
 2) bleft, bright
