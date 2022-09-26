@@ -25,6 +25,28 @@ fun test_bisplit () =
     ()
   end
 
+fun test_samplesearch () = 
+  let 
+    val a = S.tabulate (fn i => 2*i) n
+    val sa = S.toString Int.toString a
+    val _ = print ("a = " ^ sa ^ "\n")
+
+    val degree n = 4 
+    val result = S.sampleSearch a degree Int.compare a (2*Int.div(n,2) - 1)
+  in
+    case result of 
+      NONE => print ("not found")
+    | SOME pos => print ("found at position: " ^ Int.toString pos ^ "\n")
+  end
+
+fun sampleSearch (degree: int -> int) (cmp: 'a * 'a -> order) (a: 'a t) (k: a): int option =
+
+  in
+    ()
+  end
+
+
+
 fun printWork s nested updates evens max sUpdated t scanMax it flat = 
   if n > defaultInput then
     ()

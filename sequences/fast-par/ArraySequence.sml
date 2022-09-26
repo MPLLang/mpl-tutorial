@@ -32,6 +32,11 @@ fun empty () = fromList []
 fun subseq s (i, n) = 
   AS.subslice (s, i, SOME n)
 
+(* Return subseq of s[i...i+sz] if szopt = SOME sz and until the end of s otherwise *)
+fun subslice s (i, szopt) = 
+  AS.subslice (s, i, szopt)
+
+
 fun take s k = subseq s (0, k)
 
 fun drop s k = subseq s (k, length s - k)
@@ -239,10 +244,6 @@ Return i and j, where aleft = a[0, ... i] and bleft = b[0, ... j]
 fun bisplit a b k =  
   let 
     fun split a b k i j = 
-      let 
-        val _ = print ("* k = " ^ Int.toString k ^ "\n")
-        val _ = print ("i = " ^ Int.toString i ^ " j = " ^ Int.toString j ^ "\n")
-      in
       case (length a, length b) of
         (0, 0) => (i, j)
       | (0, _) => (i, j + k)
@@ -253,43 +254,81 @@ fun bisplit a b k =
           val nb = length b
           val midA = Int.div(na, 2) 
           val midB = Int.div(nb, 2) 
-          val _ = print ("nA = " ^ Int.toString na ^ " nB = " ^ Int.toString nb ^ "\n")
-          val _ = print ("midA = " ^ Int.toString midA ^ " midB = " ^ Int.toString midB ^ "\n")
         in
           if k <= midA + midB + 1 then
             if nth a midA < nth b midB then
-              let 
-                val _ = print "k <= midA + mibB and a[midA] < b[midB]\n"
-              in
               (* Drop b[midB ..] *)
               split a (subseq b (0, midB)) k i j
-              end
             else
-              let 
-                val _ = print "k <= midA + mibB and a[midA] >= b[midB]\n"
-              in
               (* Drop a[midA ..] *)
               split (subseq a (0, midA)) b k i j
-              end
           else
             if nth a midA < nth b midB then
-              let 
-                val _ = print "k > midA + mibB and a[midA] < b[midB]\n"
-              in
               (* Drop a[0 .. midA] *)
               split (subseq a (midA + 1, na - midA - 1 )) b (k - midA - 1) (i + midA + 1) j
-              end
             else
-              let 
-                val _ = print "k > midA + mibB and a[midA] >= b[midB]\n"
-              in
               (* Drop b[0 .. midB] *)
               split a (subseq b (midB + 1, nb - midB - 1))  (k - midB - 1) i (j + midB + 1)
-              end
         end    
-      end
   in
     split a b k ~1 ~1
+  end
+
+(* Sample search for a k in array a by using equality function eq)   
+   TODO: tested only with constant degree function.
+         if it is not constant, we might want to make sure that it is positive for example 
+  try with n = 100,000,000 and degree = 100,000
+ *)
+fun sampleSearch (degree: int -> int) (cmp: 'a * 'a -> order) (a: 'a t) (k: 'a): int option =
+  let 
+    val n = length a
+    val m = degree n   
+
+    (* m-sample array a *)
+    fun sample (a, n, m) = 
+     let
+       val d = Int.div (n, m)
+     in
+       (* First check last block, because it could be short 
+          If not found, then look elsewhere
+          If found, then good
+        *)
+       if cmp (k, nth a ((m-1) * d)) <> LESS andalso
+          cmp (k, nth a (n-1)) <> GREATER then
+            SOME(m*d-d, subslice a (m*d-d, NONE))
+       else
+         let 
+           val res = ref NONE
+           val _ = 
+             parfor (0, m-1) (fn i =>
+               let 
+                 val pos = i*d
+               in
+                 if cmp (k, nth a pos) <> LESS andalso
+                    cmp (k, nth a (pos +  d - 1)) <> GREATER then
+                   res := SOME pos
+                 else
+                   ()              
+               end)
+          in
+            case !res of 
+              NONE => NONE
+            | SOME pos => SOME(pos, subslice a (pos, SOME d))
+      end
+    end
+  in 
+    if m >= n then 
+      case sample (a, n, n) of
+        NONE => NONE
+      | SOME(start, b) => SOME start
+    else
+      case sample (a, n, m) of
+        NONE => NONE
+      | SOME (start, b) => 
+          case sampleSearch degree cmp b k of 
+            NONE => NONE
+          | SOME pos => 
+              SOME (start + pos) 
   end
 
 end
