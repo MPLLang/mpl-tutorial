@@ -145,4 +145,30 @@ to a larger number, e.g. 8GB).
 
 If you are on x86-64 Linux, you can...
 
-TODO continue from here
+
+## Option 3: Using Existing Implementation
+
+If `mpl` in installed on your computer, then you can use it just like
+any other program.  For examples in this repo, you want to obtain
+first the library code the examples rely on.
+
+### Pull the library
+
+Obtain the library code by using `smlpkg` command
+
+
+```
+<container># pwd
+/root/mpl-tutorial
+<container># smlpkg sync
+```
+
+This populates the directory `lib` with packages that this tutorial depends
+on. You only need to do this once, when starting the tutorial for the first
+time.
+
+Do not modify the contents of the `lib` subdirectory. These are maintained
+by the package manager.
+
+
+
