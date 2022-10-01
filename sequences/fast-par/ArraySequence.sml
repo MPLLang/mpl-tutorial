@@ -10,7 +10,7 @@ val GRAIN = 100000
 
 val parfor = ForkJoin.parfor GRAIN
 val alloc = ForkJoin.alloc
-
+fun new n = AS.full (alloc n)
 
 
 
@@ -232,7 +232,9 @@ fun flatten s =
     AS.full t
   end
 
-fun binarySearch cmp a k = 
+(* Standard binary search
+   Returns NONE if not found and SOME pos if found at position pos *)
+fun binarySearch (cmp: 'a * 'a -> order) (a: 'a t) (k: 'a): int option = 
   let 
     fun search (i, j) = 
       let 
@@ -241,13 +243,13 @@ fun binarySearch cmp a k =
         if n = 0 then
           NONE
         else if n = 1 then
-          case cmp (k, sub a i) of
+          case cmp (k, nth a i) of
             LESS => NONE
           | GREATER => NONE
-          | EQUAL => SOME
+          | EQUAL => SOME i
         else
           let val mid = Int.div (i + j, 2) in
-            case cmp (k, sub a mid) of
+            case cmp (k, nth a mid) of
               LESS => search (i, mid)
             | GREATER => search (mid+1, j)
             | EQUAL => SOME mid
@@ -256,7 +258,34 @@ fun binarySearch cmp a k =
    in
      search (0, length a)
    end          
-            
+
+(* Standard binary search
+   Returns the number of  elements of a that are less than k *)
+fun binarySplit (cmp: 'a * 'a -> order) (a: 'a t) (k: 'a): int = 
+  let 
+    fun search (i, j) = 
+      let 
+        val n = j - i
+      in
+        if n = 0 then
+          0
+        else if n = 1 then
+          case cmp (k, nth a i) of
+            LESS => i
+          | GREATER => i+1
+          | EQUAL => i+1
+        else
+          let val mid = Int.div (i + j, 2) in
+            case cmp (k, nth a mid) of
+              LESS => search (i, mid)
+            | GREATER => search (mid+1, j)
+            | EQUAL => mid+1
+          end
+      end
+   in
+     search (0, length a)
+   end          
+
           
 (* Split sorted sequences a and b into 
 1) aleft, aright
@@ -267,7 +296,7 @@ Return i and j, where aleft = a[0, ... i] and bleft = b[0, ... j]
 
 *)        
  
-fun bisplit a b k =  
+fun bivariantSplit a b k =  
   let 
     fun split a b k i j = 
       case (length a, length b) of
@@ -300,20 +329,22 @@ fun bisplit a b k =
     split a b k ~1 ~1
   end
 
-(* Sample search for a k in array a by using equality function eq)   
-   TODO: tested only with constant degree function.
-         if it is not constant, we might want to make sure that it is positive for example 
-  try with n = 100,000,000 and degree = 100,000
+(* Sample search for a k in array a by using comparison function cmp
  *)
 fun sampleSearch (degree: int -> int) (cmp: 'a * 'a -> order) (a: 'a t) (k: 'a): int option =
   let 
     val n = length a
-    val m = degree n   
+    val m = Int.max (degree n, 2)   
+    val _ = print ("degree = " ^ Int.toString m ^ "\n")
 
     (* m-sample array a *)
     fun sample (a, n, m) = 
      let
        val d = Int.div (n, m)
+       val _ = print ("Sample: n = " ^ Int.toString n ^ " m = " ^ Int.toString m ^ " d = " ^ Int.toString d ^ "\n")
+       val _ = print ("Sample: Last block: " ^ Int.toString ((m-1)*d) ^ " -- " ^ Int.toString (n-1)^ "\n")
+       fun fib n = if n < 2 then n else fib(n-1) + fib (n-2)
+       val _ = fib 40
      in
        (* First check last block, because it could be short 
           If not found, then look elsewhere
@@ -329,6 +360,8 @@ fun sampleSearch (degree: int -> int) (cmp: 'a * 'a -> order) (a: 'a t) (k: 'a):
              parfor (0, m-1) (fn i =>
                let 
                  val pos = i*d
+                 val _ = print ("Sample:  block begin = " ^ Int.toString pos)
+                 val _ = print (" end = " ^ Int.toString (pos + d - 1) ^ "\n")
                in
                  if cmp (k, nth a pos) <> LESS andalso
                     cmp (k, nth a (pos +  d - 1)) <> GREATER then
@@ -353,8 +386,37 @@ fun sampleSearch (degree: int -> int) (cmp: 'a * 'a -> order) (a: 'a t) (k: 'a):
       | SOME (start, b) => 
           case sampleSearch degree cmp b k of 
             NONE => NONE
-          | SOME pos => 
-              SOME (start + pos) 
+          | SOME pos => SOME (start + pos) 
   end
+
+fun mergeSeq a b =	
+	let		
+		val r = alloc (length a + length b)
+    val na = length a
+  	val nb = length b
+
+    fun copy x (i, n) k =
+			if i = n then
+				()
+			else
+				(Array.update (r, k, nth x i);
+				 copy x (i+1, n) (k+1))
+			
+		fun mergeInplace i j k =
+		  if i = na then
+				copy b (j, nb) k
+			else if j  = nb then
+				copy a (i, na) k
+  		else
+				if nth a i < nth b j then
+					 (Array.update (r, k, nth a i);
+					 mergeInplace (i+1) j (k+1))
+			  else 
+					 (Array.update (r, k, nth b j);
+					 mergeInplace i (j+1) (k+1))					
+	in
+		(mergeInplace 0 0 0; AS.full r)
+  end								 
+
 
 end
