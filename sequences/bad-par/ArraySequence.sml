@@ -6,6 +6,8 @@ structure AS = ArraySlice
 
 type 'a t = 'a ArraySlice.slice
 
+datatype 'a tree = Leaf of int | Node of ('a tree * 'a tree * 'a)
+
 val parfor = ForkJoin.parfor 1
 val alloc = ForkJoin.alloc
 
@@ -137,10 +139,67 @@ fun scanGen f id s =
         end
    end
 
+
+
+(* Compute `reduce` for all prefixes of the input sequence,
+ * including the empty and the full prefix. 
+ *)
+fun scanGenTree f id s = 
+  let
+    val n = length s
+    val res = ForkJoin.alloc (n+1)
+		
+(*    val _ = print ("scan: len(s) = " ^ Int.toString n ^ "\n") *)
+      val ss = toString Int.toString s
+      val _ = print ("scan: s = " ^ ss ^ "\n")
+			
+    fun mkTreeSlice(l: int, r: int) =
+     if r = l + 1 then
+		   (Leaf l, nth s l)
+		 else
+		   let 
+         val mid = Int.div(l + r, 2)
+         val (left, leftsum) = mkTreeSlice(l, mid)
+				 val (right, rightsum) = mkTreeSlice(mid, r)
+			in
+			  (Node(left, right, leftsum), f(leftsum, rightsum))
+      end 
+
+    fun scanTree(tree, sum) =
+  	  case tree of
+        Leaf(l) => Array.update(res, l, sum)
+      | Node(l, r, leftSum) =>
+    	  let
+          val _ = scanTree(l, sum)
+          val _ = scanTree(r, f(leftSum, sum))
+        in
+          ()
+        end	
+  in 
+    if n = 0 then
+      (Array.update(res, 0, id); AS.full res)
+    else 
+      let
+			  val (tree, sum) =  mkTreeSlice(0, n)
+  			val _ = scanTree(tree, id)								
+        val _ = Array.update(res, n, sum)
+      in
+     	  AS.full res
+      end
+   end
+
 (* Scan exclusive *)
 fun scan f id s = 
   let 
     val t = scanGen f id s
+    val n = length s 
+  in
+    (subseq t (0,n), nth t n)
+  end 
+
+fun scanTree f id s = 
+  let 
+    val t = scanGenTree f id s
     val n = length s 
   in
     (subseq t (0,n), nth t n)
@@ -153,7 +212,15 @@ fun iscan f id s =
     val n = length s 
   in
     subseq t (1,n)
-  end 
+  end
+
+fun iscanTree f id s = 
+  let 
+    val t = scanGenTree f id s
+    val n = length s 
+  in
+    subseq t (1,n)
+  end
 
 fun filter f s = 
   let
