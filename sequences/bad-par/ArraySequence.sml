@@ -149,10 +149,10 @@ fun scanGenTree f id s =
     val n = length s
     val res = ForkJoin.alloc (n+1)
 		
-(*    val _ = print ("scan: len(s) = " ^ Int.toString n ^ "\n") *)
+(*    val _ = print ("scan: len(s) = " ^ Int.toString n ^ "\n") 
       val ss = toString Int.toString s
       val _ = print ("scan: s = " ^ ss ^ "\n")
-			
+*)			
     fun mkTreeSlice(l: int, r: int) =
      if r = l + 1 then
 		   (Leaf l, nth s l)
