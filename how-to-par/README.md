@@ -5,14 +5,14 @@
 
 ## Preliminaries
 
-Make sure that you've already done the [setup](../01-setup/README.md). If
+Make sure that you've already done the [setup](../setup/README.md). If
 you're using Docker to run the tutorial, all commands below should be
-run within the container in directory `~/mpl-tutoral/03-how-to-par/`:
+run within the container in directory `~/mpl-tutorial/how-to-par/`:
 
 ```
 $ cd path/to/mpl-tutorial
 $ ./start-container.sh
-<container># cd 03-how-to-par
+<container># cd how-to-par
 <container># <enter commands here>
 ```
 
@@ -25,7 +25,7 @@ calculated using the naive recursive definition
 taking a number `n` as input and returning the n<sup>th</sup> Fibonacci number.
 The base cases are `n = 0` and `n = 1`.
 
-[`mpl-tutorial/03-how-to-par/sequential/fib.sml`](./sequential/fib.sml):
+[`mpl-tutorial/how-to-par/sequential/fib.sml`](./sequential/fib.sml):
 ```sml
 fun fib n =
   if n = 0 then
@@ -66,7 +66,7 @@ we will discuss below. Notice that we make two recursive
 calls, just like before, but now these are packaged up as anonymous functions
 and passed as argument to `par`.
 
-[`mpl-tutorial/03-how-to-par/bad-par/bad-par-fib.sml`](./bad-par/bad-par-fib.sml):
+[`mpl-tutorial/how-to-par/bad-par/bad-par-fib.sml`](./bad-par/bad-par-fib.sml):
 ```sml
 fun badParFib n =
   if n = 0 then
@@ -117,7 +117,7 @@ There are three things in this code we haven't seen before:
 `Int.toString` converts the resulting number into a string, and the operator
 `^` concatenates strings.
 
-[`mpl-tutorial/03-how-to-par/bad-par/main.sml`](./bad-par/main.sml):
+[`mpl-tutorial/how-to-par/bad-par/main.sml`](./bad-par/main.sml):
 ```sml
 val n = 35
 val _ = print ("Computing fib(" ^ Int.toString n ^ ")\n")
@@ -129,7 +129,7 @@ val _ = print ("fib(" ^ Int.toString n ^ ") = " ^ Int.toString result ^ "\n")
 The line `$(SML_LIB)/basis/fork-join.mlb` makes it possible to use
 `ForkJoin.par`.
 
-[`mpl-tutorial/03-how-to-par/bad-par/main.mlb`](./bad-par/main.mlb):
+[`mpl-tutorial/how-to-par/bad-par/main.mlb`](./bad-par/main.mlb):
 ```sml
 $(SML_LIB)/basis/basis.mlb
 $(SML_LIB)/basis/fork-join.mlb
@@ -212,7 +212,7 @@ function is to switch to a fast sequential algorithm below some
 threshold. Here, we hardcode the threshold at `n = 20`: for any `n < 20`, we'll
 use the fast sequential `fib(n)` instead of the parallel version.
 
-[`mpl-tutorial/03-how-to-par/fast-par/fast-par-fib.sml`](./fast-par/fast-par-fib.sml):
+[`mpl-tutorial/how-to-par/fast-par/fast-par-fib.sml`](./fast-par/fast-par-fib.sml):
 ```sml
 fun fastParFib n =
   if n < 20 then
@@ -266,7 +266,7 @@ and report their times. To loop through multiple grain sizes, we define
 a useful helper function, `forloop`, which takes a function as argument
 and runs it on a range of indices.
 
-[`mpl-tutorial/03-how-to-par/tuning/main.sml`](./tuning/main.sml):
+[`mpl-tutorial/how-to-par/tuning/main.sml`](./tuning/main.sml):
 ```sml
 fun parFibWithGrain (g, n) =
   if n < g then

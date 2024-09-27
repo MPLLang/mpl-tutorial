@@ -5,14 +5,14 @@
 
 ## Preliminaries
 
-Make sure that you've already done the [setup](../01-setup/README.md). If
+Make sure that you've already done the [setup](../setup/README.md). If
 you're using Docker to run the tutorial, all commands below should be
-run within the container in directory `~/mpl-tutoral/04-trees/`:
+run within the container in directory `~/mpl-tutorial/trees/`:
 
 ```
 $ cd path/to/mpl-tutorial
 $ ./start-container.sh
-<container># cd 04-trees
+<container># cd trees
 <container># <enter commands here>
 ```
 
@@ -143,7 +143,7 @@ The `reduce` function is easy to parallelize, as the two children of every
 internal node can be processed in parallel, and finally their results
 can be combined with `f`.
 
-Similar to the [previous section](../03-how-to-par/README.md),
+Similar to the [previous section](../how-to-par/README.md),
 we use granularity control to ensure that the cost of `ForkJoin.par` is
 amortized. Here, this is implemented by switching to `reduceSeq`
 below a size threshold `GRAIN`. The `reduceSeq` function is just a sequential

@@ -3,15 +3,15 @@
 
 lib/
 
-02-hello/hello
-02-hello/hello-twice
-02-hello/foobar
+hello/hello
+hello/hello-twice
+hello/foobar
 
-03-how-to-par/bad-par/main
-03-how-to-par/fast-par/main
-03-how-to-par/sequential/main
-03-how-to-par/tuning/main
+how-to-par/bad-par/main
+how-to-par/fast-par/main
+how-to-par/sequential/main
+how-to-par/tuning/main
 
-04-trees/test-balanced/main
-04-trees/test-unbalanced/main
-04-trees/test-scan/main
+trees/test-balanced/main
+trees/test-unbalanced/main
+trees/test-scan/main
