@@ -4,14 +4,14 @@
 
 ## Preliminaries
 
-Make sure that you've already done the [setup](../01-setup/README.md). If
+Make sure that you've already done the [setup](../setup/README.md). If
 you're using Docker to run the tutorial, all commands below should be
-run within the container in directory `~/mpl-tutoral/02-hello/`:
+run within the container in directory `~/mpl-tutorial/hello/`:
 
 ```
 $ cd path/to/mpl-tutorial
 $ ./start-container.sh
-<container># cd 02-hello
+<container># cd hello
 <container># <enter commands here>
 ```
 
@@ -22,7 +22,7 @@ argument and writes it to the terminal.
 Note that in SML, it is common to call a function without putting parentheses
 around its arguments (e.g. `f x` instead of `f(x)`).
 
-[`mpl-tutorial/02-hello/hello.sml`](./hello.sml):
+[`mpl-tutorial/hello/hello.sml`](./hello.sml):
 ```sml
 val _ = print "hello world\n"
 ```
@@ -73,7 +73,7 @@ MPL to load three things: the
 files: [hello.sml](./hello.sml) followed by
 [hello-again.sml](./hello-again.sml).
 
-[`mpl-tutorial/02-hello/hello-twice.mlb`](./hello-twice.mlb):
+[`mpl-tutorial/hello/hello-twice.mlb`](./hello-twice.mlb):
 ```sml
 $(SML_LIB)/basis/basis.mlb
 hello.sml
